@@ -5,9 +5,32 @@ import io.vertx.core.VertxOptions;
 import io.vertx.core.http.*;
 import io.vertx.core.logging.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+
 public class VertxHttpGateway {
     private int workerPoolSize = 40;
     private int localListenPort = 80;
+    private Class<BasePassoverRouter> routerClass = BasePassoverRouter.class;
+    private ArrayList<Class<AbstractRequestFilter>> filters = new ArrayList<>();
+
+    public Class<BasePassoverRouter> getRouterClass() {
+        return routerClass;
+    }
+
+    public VertxHttpGateway setRouterClass(Class<BasePassoverRouter> routerClass) {
+        this.routerClass = routerClass;
+        return this;
+    }
+
+    public ArrayList<Class<AbstractRequestFilter>> getFilters() {
+        return filters;
+    }
+
+    public VertxHttpGateway setFilters(ArrayList<Class<AbstractRequestFilter>> filters) {
+        this.filters = filters;
+        return this;
+    }
 
     public int getWorkerPoolSize() {
         return workerPoolSize;
@@ -45,17 +68,21 @@ public class VertxHttpGateway {
 
             LoggerFactory.getLogger(this.getClass()).info("raw meta " + request.host() + " " + request.remoteAddress().port() + " " + request.isSSL() + " " + request.uri());
 
-            String[] hostParts = request.host().split(":");
-            String host = hostParts[0];
-            int port = request.isSSL() ? 443 : 80;
+            BasePassoverRouter router;
+            try {
+                router = routerClass.getDeclaredConstructor(HttpServerRequest.class).newInstance(request);
+            } catch (Exception e) {
+                LoggerFactory.getLogger(this.getClass()).error("Cannot found router class " + routerClass, e);
+                router = new BasePassoverRouter(request);
+            }
 
-            LoggerFactory.getLogger(this.getClass()).info("parsed meta " + host + " " + port + " " + request.isSSL() + " " + request.uri());
+            LoggerFactory.getLogger(this.getClass()).info("parsed meta " + router.getHost() + " " + router.getPort() + " " + router.isSSL() + " " + router.getUri());
 
             RequestOptions requestOptions = new RequestOptions()
-                    .setHost(host)
-                    .setPort(port)
-                    .setSsl(request.isSSL())
-                    .setURI(request.uri());
+                    .setHost(router.getHost())
+                    .setPort(router.getPort())
+                    .setSsl(router.isSSL())
+                    .setURI(router.getUri());
             HttpClientRequest requestToService = client.request(request.method(), requestOptions, response -> {
                 LoggerFactory.getLogger(this.getClass()).info("response from service " + response.statusCode() + " " + response.statusMessage());
                 request.response()
@@ -96,17 +123,42 @@ public class VertxHttpGateway {
             LoggerFactory.getLogger(this.getClass()).info("requestToService headers set");
 
             if (request.getHeader("Content-Length") == null) {
-                LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
-                requestToService.end();
+                //LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
+                //requestToService.end();
             } else {
                 request.bodyHandler(buffer -> {
                     LoggerFactory.getLogger(this.getClass()).info("to write buffer " + buffer.length());
                     requestToService.write(buffer);
 
-                    LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
-                    requestToService.end();
+                    //LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
+                    //requestToService.end();
                 });
             }
+
+            request.endHandler(event -> {
+                LoggerFactory.getLogger(this.getClass()).info("income request fully got, requestToService to end");
+
+                if (filters != null) {
+                    for (int i = 0; i < filters.size(); i++) {
+                        Class<AbstractRequestFilter> filterClass = filters.get(i);
+                        try {
+                            AbstractRequestFilter requestFilter = filterClass.getDeclaredConstructor(HttpServerRequest.class).newInstance(request);
+                            if (!requestFilter.filter()) {
+                                LoggerFactory.getLogger(this.getClass()).error("Filter[" + i + "]" + filterClass + " denied the request. Feedback: " + requestFilter.getFeedback());
+                                request.connection().close();
+                                return;
+                            }
+                        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                            LoggerFactory.getLogger(this.getClass()).error("Cannot make up Filter[" + i + "]" + filterClass + ", request would be denied.", e);
+                            request.connection().close();
+                            return;
+                        }
+                    }
+                }
+
+                requestToService.end();
+            });
+
         }).listen(localListenPort);
 
         LoggerFactory.getLogger(this.getClass()).info("Main Listen Done on " + localListenPort + " with " + workerPoolSize + " workers");
