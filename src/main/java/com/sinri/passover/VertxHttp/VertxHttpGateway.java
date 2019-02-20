@@ -68,11 +68,11 @@ public class VertxHttpGateway {
                 });
                 request.response().headersEndHandler(event -> {
                     System.out.println("headersEndHandler executing");
-                    response.bodyHandler(buffer -> {
-                        System.out.println("Body received from service and sent to client " + buffer.length());
-                        //request.response().write(buffer);
-                        request.response().end(buffer);
-                    });
+                });
+                response.bodyHandler(buffer -> {
+                    System.out.println("Body received from service and sent to client " + buffer.length());
+                    //request.response().write(buffer);
+                    request.response().end(buffer);
                 });
 
             }).setFollowRedirects(false);
