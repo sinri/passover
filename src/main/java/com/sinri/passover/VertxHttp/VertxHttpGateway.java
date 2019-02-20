@@ -75,6 +75,7 @@ public class VertxHttpGateway {
                 LoggerFactory.getLogger(this.getClass()).error("Cannot found router class " + routerClass, e);
                 router = new BasePassoverRouter(request);
             }
+            router.analyze();
 
             LoggerFactory.getLogger(this.getClass()).info("parsed meta " + router.getHost() + " " + router.getPort() + " " + router.isSSL() + " " + router.getUri());
 
