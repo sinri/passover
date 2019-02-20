@@ -48,13 +48,14 @@ public class VertxHttpGateway {
 
             String[] hostParts = request.host().split(":");
             String host = hostParts[0];
-            String port = hostParts.length > 1 ? hostParts[1] : (request.isSSL() ? "443" : "80");
+            //String port = hostParts.length > 1 ? hostParts[1] : (request.isSSL() ? "443" : "80");
+            int port = request.isSSL() ? 443 : 80;
 
             System.out.println("parsed meta " + host + " " + port + " " + request.isSSL() + " " + request.uri());
 
             RequestOptions requestOptions = new RequestOptions()
                     .setHost(host)
-                    .setPort(Integer.parseInt(port))
+                    .setPort(port)
                     .setSsl(request.isSSL())
                     .setURI(request.uri());
             HttpClientRequest requestToService = client.request(request.method(), requestOptions, response -> {
