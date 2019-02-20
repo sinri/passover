@@ -2,6 +2,7 @@ package com.sinri.passover.VertxHttp;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.*;
 import io.vertx.core.logging.LoggerFactory;
 
@@ -61,6 +62,8 @@ public class VertxHttpGateway {
         });
 
         server.requestHandler(request -> {
+            Buffer bodyBuffer = Buffer.buffer();
+
             HttpClient client = vertx.createHttpClient();
             client.connectionHandler(httpConnection -> {
                 LoggerFactory.getLogger(this.getClass()).info("Client connection established with " + httpConnection.remoteAddress());
@@ -127,12 +130,17 @@ public class VertxHttpGateway {
                 //LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
                 //requestToService.end();
             } else {
-                request.bodyHandler(buffer -> {
-                    LoggerFactory.getLogger(this.getClass()).info("to write buffer " + buffer.length());
-                    requestToService.write(buffer);
+//                request.bodyHandler(buffer -> {
+//                    LoggerFactory.getLogger(this.getClass()).info("to write buffer " + buffer.length());
+//                    requestToService.write(buffer);
+//
+//                    //LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
+//                    //requestToService.end();
+//                });
 
-                    //LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
-                    //requestToService.end();
+                request.handler(buffer -> {
+                    System.out.println("I have received a chunk of the body of length " + buffer.length());
+                    bodyBuffer.appendBuffer(buffer);
                 });
             }
 
@@ -142,6 +150,9 @@ public class VertxHttpGateway {
                 if (filters != null) {
                     for (int i = 0; i < filters.size(); i++) {
                         Class<AbstractRequestFilter> filterClass = filters.get(i);
+
+                        LoggerFactory.getLogger(this.getClass()).info("Filter[" + i + "]" + filterClass + " ready");
+
                         try {
                             AbstractRequestFilter requestFilter = filterClass.getDeclaredConstructor(HttpServerRequest.class).newInstance(request);
                             if (!requestFilter.filter()) {
@@ -157,7 +168,9 @@ public class VertxHttpGateway {
                     }
                 }
 
-                requestToService.end();
+                LoggerFactory.getLogger(this.getClass()).info("Filters All Done, ready to send request to service");
+
+                requestToService.end(bodyBuffer);
             });
 
         }).listen(localListenPort);
