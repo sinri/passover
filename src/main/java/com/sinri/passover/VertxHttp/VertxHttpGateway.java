@@ -3,6 +3,7 @@ package com.sinri.passover.VertxHttp;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.http.*;
+import io.vertx.core.logging.LoggerFactory;
 
 public class VertxHttpGateway {
     private int workerPoolSize = 40;
@@ -33,25 +34,22 @@ public class VertxHttpGateway {
         HttpServer server = vertx.createHttpServer(options);
 
         server.exceptionHandler(exception -> {
-            System.err.println("Exception with server: " + exception.getMessage());
+            LoggerFactory.getLogger(this.getClass()).info("Exception with server", exception);
         });
 
         server.requestHandler(request -> {
-            //request.response().end("Hello world");
-
             HttpClient client = vertx.createHttpClient();
             client.connectionHandler(httpConnection -> {
-                System.out.println("Client Connected " + httpConnection.indicatedServerName());
+                LoggerFactory.getLogger(this.getClass()).info("Client connection established with " + httpConnection.remoteAddress());
             });
 
-            System.out.println("raw meta " + request.host() + " " + request.remoteAddress().port() + " " + request.isSSL() + " " + request.uri());
+            LoggerFactory.getLogger(this.getClass()).info("raw meta " + request.host() + " " + request.remoteAddress().port() + " " + request.isSSL() + " " + request.uri());
 
             String[] hostParts = request.host().split(":");
             String host = hostParts[0];
-            //String port = hostParts.length > 1 ? hostParts[1] : (request.isSSL() ? "443" : "80");
             int port = request.isSSL() ? 443 : 80;
 
-            System.out.println("parsed meta " + host + " " + port + " " + request.isSSL() + " " + request.uri());
+            LoggerFactory.getLogger(this.getClass()).info("parsed meta " + host + " " + port + " " + request.isSSL() + " " + request.uri());
 
             RequestOptions requestOptions = new RequestOptions()
                     .setHost(host)
@@ -59,7 +57,7 @@ public class VertxHttpGateway {
                     .setSsl(request.isSSL())
                     .setURI(request.uri());
             HttpClientRequest requestToService = client.request(request.method(), requestOptions, response -> {
-                System.out.println("response from service " + response.statusCode() + " " + response.statusMessage());
+                LoggerFactory.getLogger(this.getClass()).info("response from service " + response.statusCode() + " " + response.statusMessage());
                 request.response()
                         .setStatusCode(response.statusCode())
                         .setStatusMessage(response.statusMessage());
@@ -67,10 +65,10 @@ public class VertxHttpGateway {
                     request.response().putHeader(pair.getKey(), pair.getValue());
                 });
                 request.response().headersEndHandler(event -> {
-                    System.out.println("headersEndHandler executing");
+                    LoggerFactory.getLogger(this.getClass()).info("headersEndHandler executing");
                 });
                 response.bodyHandler(buffer -> {
-                    System.out.println("Body received from service and sent to client " + buffer.length());
+                    LoggerFactory.getLogger(this.getClass()).info("Body received from service and sent to client " + buffer.length());
                     //request.response().write(buffer);
                     request.response().end(buffer);
                 });
@@ -78,39 +76,39 @@ public class VertxHttpGateway {
             }).setFollowRedirects(false);
 
             request.exceptionHandler(exception -> {
-                System.err.println("Exception with income request: " + exception.getMessage());
+                LoggerFactory.getLogger(this.getClass()).error("Exception with income request", exception);
                 request.connection().close();
             });
 
             requestToService.exceptionHandler(exception -> {
-                System.err.println("Exception with outgoing request: " + exception.getMessage());
+                LoggerFactory.getLogger(this.getClass()).error("Exception with outgoing request", exception);
                 if (requestToService.connection() != null) requestToService.connection().close();
                 request.connection().close();
             });
 
-            System.out.println("requestToService built");
+            LoggerFactory.getLogger(this.getClass()).info("requestToService built");
 
             request.headers().forEach(pair -> {
-                System.out.println("See header " + pair.getKey() + " : " + pair.getValue());
+                LoggerFactory.getLogger(this.getClass()).info("See header " + pair.getKey() + " : " + pair.getValue());
                 requestToService.putHeader(pair.getKey(), pair.getValue());
             });
 
-            System.out.println("requestToService headers set");
+            LoggerFactory.getLogger(this.getClass()).info("requestToService headers set");
 
             if (request.getHeader("Content-Length") == null) {
-                System.out.println("requestToService to end");
+                LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
                 requestToService.end();
             } else {
                 request.bodyHandler(buffer -> {
-                    System.out.println("to write buffer " + buffer.length());
+                    LoggerFactory.getLogger(this.getClass()).info("to write buffer " + buffer.length());
                     requestToService.write(buffer);
 
-                    System.out.println("requestToService to end");
+                    LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
                     requestToService.end();
                 });
             }
         }).listen(localListenPort);
 
-        System.out.println("Main Listen Done on " + localListenPort + " with " + workerPoolSize + " workers");
+        LoggerFactory.getLogger(this.getClass()).info("Main Listen Done on " + localListenPort + " with " + workerPoolSize + " workers");
     }
 }
