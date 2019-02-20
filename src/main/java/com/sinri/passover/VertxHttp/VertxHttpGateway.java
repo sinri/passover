@@ -52,25 +52,34 @@ public class VertxHttpGateway {
     }
 
     public void run() {
+        // 建立Vertx实例
         Vertx vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(workerPoolSize));
-
+        // 建立网关服务器
         HttpServerOptions options = new HttpServerOptions().setLogActivity(true);
-        HttpServer server = vertx.createHttpServer(options);
-
-        server.exceptionHandler(exception -> {
+        HttpServer gatewayServer = vertx.createHttpServer(options);
+        // 如果网关服务器出现异常，则进行处理
+        gatewayServer.exceptionHandler(exception -> {
             LoggerFactory.getLogger(this.getClass()).info("Exception with server", exception);
         });
-
-        server.requestHandler(request -> {
+        // 网关服务器处理请求
+        gatewayServer.requestHandler(request -> {
+            // 初始化请求的本体
             Buffer bodyBuffer = Buffer.buffer();
 
+            // 设定请求出现问题时的回调。此处直接关闭请求。
+            request.exceptionHandler(exception -> {
+                LoggerFactory.getLogger(this.getClass()).error("Exception with income request", exception);
+                request.connection().close();
+            });
+
+            // 准备转发器并设置连接回调
             HttpClient client = vertx.createHttpClient();
             client.connectionHandler(httpConnection -> {
                 LoggerFactory.getLogger(this.getClass()).info("Client connection established with " + httpConnection.remoteAddress());
             });
 
+            // 根据设定的路由插件计算路由
             LoggerFactory.getLogger(this.getClass()).info("raw meta " + request.host() + " " + request.remoteAddress().port() + " " + request.isSSL() + " " + request.uri());
-
             BasePassoverRouter router;
             try {
                 router = routerClass.getDeclaredConstructor(HttpServerRequest.class).newInstance(request);
@@ -79,14 +88,16 @@ public class VertxHttpGateway {
                 router = new BasePassoverRouter(request);
             }
             router.analyze();
-
             LoggerFactory.getLogger(this.getClass()).info("parsed meta " + router.getHost() + " " + router.getPort() + " " + router.isSSL() + " " + router.getUri());
 
+            // 根据路由准备转发请求的配置
             RequestOptions requestOptions = new RequestOptions()
                     .setHost(router.getHost())
                     .setPort(router.getPort())
                     .setSsl(router.isSSL())
                     .setURI(router.getUri());
+
+            // 创建转发请求
             HttpClientRequest requestToService = client.request(request.method(), requestOptions, response -> {
                 LoggerFactory.getLogger(this.getClass()).info("response from service " + response.statusCode() + " " + response.statusMessage());
                 request.response()
@@ -104,49 +115,39 @@ public class VertxHttpGateway {
                     request.response().end(buffer);
                 });
 
-            }).setFollowRedirects(false);
-
-            request.exceptionHandler(exception -> {
-                LoggerFactory.getLogger(this.getClass()).error("Exception with income request", exception);
-                request.connection().close();
             });
-
+            // 转发请求不需要跟踪30x转移指令
+            requestToService.setFollowRedirects(false);
+            // 如果转发请求出错，直接关闭请求
             requestToService.exceptionHandler(exception -> {
                 LoggerFactory.getLogger(this.getClass()).error("Exception with outgoing request", exception);
                 if (requestToService.connection() != null) requestToService.connection().close();
+                // TODO 是否需要像SLB一样设置一个特殊的报错回复报文，比现在直接关闭更友好一些。
                 request.connection().close();
             });
 
-            LoggerFactory.getLogger(this.getClass()).info("requestToService built");
+            //LoggerFactory.getLogger(this.getClass()).debug("requestToService built");
 
+            // 为转发请求复刻headers
             request.headers().forEach(pair -> {
                 LoggerFactory.getLogger(this.getClass()).info("See header " + pair.getKey() + " : " + pair.getValue());
                 requestToService.putHeader(pair.getKey(), pair.getValue());
             });
 
-            LoggerFactory.getLogger(this.getClass()).info("requestToService headers set");
+            //LoggerFactory.getLogger(this.getClass()).debug("requestToService headers set");
 
-            if (request.getHeader("Content-Length") == null) {
-                //LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
-                //requestToService.end();
-            } else {
-//                request.bodyHandler(buffer -> {
-//                    LoggerFactory.getLogger(this.getClass()).info("to write buffer " + buffer.length());
-//                    requestToService.write(buffer);
-//
-//                    //LoggerFactory.getLogger(this.getClass()).info("requestToService to end");
-//                    //requestToService.end();
-//                });
-
+            //if (request.getHeader("Content-Length") != null) // 我怀疑不必关心 Content-Length
                 request.handler(buffer -> {
-                    System.out.println("I have received a chunk of the body of length " + buffer.length());
+                    LoggerFactory.getLogger(this.getClass()).info("I have received a chunk of the body of length " + buffer.length());
                     bodyBuffer.appendBuffer(buffer);
                 });
-            }
 
+            // 按照文档，这是全部都完成了的回调
+            // The endHandler of the request is invoked when the entire request, including any body has been fully read.
             request.endHandler(event -> {
                 LoggerFactory.getLogger(this.getClass()).info("income request fully got, requestToService to end");
 
+                // 如果有Filters那就一个个过
                 if (filters != null) {
                     for (int i = 0; i < filters.size(); i++) {
                         Class<AbstractRequestFilter> filterClass = filters.get(i);
