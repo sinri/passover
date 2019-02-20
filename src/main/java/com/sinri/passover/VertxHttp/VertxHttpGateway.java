@@ -110,5 +110,7 @@ public class VertxHttpGateway {
                 });
             }
         }).listen(localListenPort);
+
+        System.out.println("Main Listen Done on " + localListenPort + " with " + workerPoolSize + " workers");
     }
 }
