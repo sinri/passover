@@ -1,5 +1,6 @@
 package com.sinri.passover.VertxHttp;
 
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.logging.LoggerFactory;
 
@@ -22,9 +23,10 @@ abstract public class AbstractRequestFilter {
      * The feedback should be updated.
      * If the result is false, the request would be thrown away.
      *
+     * @param bodyBuffer If body buffer needed in filtering work
      * @return If the request is validated.
      */
-    final boolean filter() {
+    final boolean filter(Buffer bodyBuffer) {
         try {
             feedback = "Not Checked Yet";
             return shouldThisRequestBeFiltered();
