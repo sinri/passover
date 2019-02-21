@@ -55,7 +55,7 @@ public class GatewayRequest {
         // 解析Cookie
         this.cookieExt = null;
         request.headers().forEach(header -> {
-            logger.info("Skim Request header item named " + header.getKey() + " : " + header.getValue());
+            logger.debug("Skim Request header item named " + header.getKey() + " : " + header.getValue());
             if (header.getKey().equalsIgnoreCase("cookie")) {
                 this.cookieExt = new CookieExt(header.getValue());
                 logger.info("Updated CookieExt with item named " + header.getKey());

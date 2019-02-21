@@ -10,17 +10,27 @@ public class VertxHttpGateway {
     private Vertx vertx;
     private int workerPoolSize = 40;
     private int localListenPort = 80;
-    private Class<BasePassoverRouter> routerClass = BasePassoverRouter.class;
-    //private ArrayList<Class<AbstractRequestFilter>> filters = new ArrayList<>();
+    private BasePassoverRouter router = new BasePassoverRouter();
 
-    public Class<BasePassoverRouter> getRouterClass() {
-        return routerClass;
+    public BasePassoverRouter getRouter() {
+        return router;
     }
 
-    public VertxHttpGateway setRouterClass(Class<BasePassoverRouter> routerClass) {
-        this.routerClass = routerClass;
+    public VertxHttpGateway setRouter(BasePassoverRouter router) {
+        this.router = router;
         return this;
     }
+    //private Class<PassoverRouter> routerClass;
+    //private ArrayList<Class<AbstractRequestFilter>> filters = new ArrayList<>();
+
+    //public Class<PassoverRouter> getRouterClass() {
+    //    return routerClass;
+    //}
+
+    //public VertxHttpGateway setRouterClass(Class<PassoverRouter> routerClass) {
+    //    this.routerClass = routerClass;
+    //    return this;
+    //}
 
 //    public ArrayList<Class<AbstractRequestFilter>> getFilters() {
 //        return filters;
@@ -49,14 +59,14 @@ public class VertxHttpGateway {
         return this;
     }
 
-    private BasePassoverRouter buildRouter() {
-        try {
-            return routerClass.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            LoggerFactory.getLogger(this.getClass()).error("无法找到Router类，根据以下类定义: " + routerClass, e);
-        }
-        return new BasePassoverRouter();
-    }
+    //   private BasePassoverRouter buildRouter() {
+//        try {
+//            return routerClass.getDeclaredConstructor().newInstance();
+//        } catch (Exception e) {
+//            LoggerFactory.getLogger(this.getClass()).error("无法找到Router类，根据以下类定义: " + routerClass, e);
+//        }
+//        return new BasePassoverRouter();
+//    }
 
     public void run() {
         // 建立Vertx实例
@@ -70,7 +80,7 @@ public class VertxHttpGateway {
         });
 
         // 初始化路由器
-        final BasePassoverRouter router = buildRouter();
+        //final BasePassoverRouter router = buildRouter();
 
         // 网关服务器处理请求
         gatewayServer.requestHandler(request -> {

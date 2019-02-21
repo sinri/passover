@@ -1,14 +1,18 @@
 package com.sinri.passover.VertxHttp;
 
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 
 abstract public class AbstractRequestFilter {
 
     protected GatewayRequest request;
     private String feedback;
+    protected Logger logger;
 
     public AbstractRequestFilter(GatewayRequest request) {
         this.request = request;
+        this.logger = LoggerFactory.getLogger("Filter#" + getFilterName() + "@GR" + request.getRequestId());
     }
 
     public String getFeedback() {
@@ -34,7 +38,7 @@ abstract public class AbstractRequestFilter {
     final boolean filter(Buffer bodyBuffer) throws Exception {
         feedback = "Not Checked Yet";
         // 如果出现了不可控情况，直接在这里扔异常
-        boolean pass = shouldThisRequestBeFiltered();
+        boolean pass = checkPassable();
         // 如果是可控的情况，调用dealFilterDeny方法并返回false
         if (!pass) {
             dealFilterDeny();
@@ -50,12 +54,14 @@ abstract public class AbstractRequestFilter {
      * @return 如果一切正常需要继续转发则返回true，如果需要执行自定义的拒绝回调返回false
      * @throws Exception 如果出现了不可控的异常则扔异常去被abandoned
      */
-    abstract protected boolean shouldThisRequestBeFiltered() throws Exception;
+    abstract protected boolean checkPassable() throws Exception;
 
     /**
-     * 如果有需要自定义拒绝回调可以重载此方法
+     * 如果有需要自定义拒绝回调可以重载此方法。重点是要关闭网关请求的连接。
      */
     protected void dealFilterDeny() {
         request.abandonIncomingRequest(AbandonReason.AbandonByFilter(new Exception("Filter " + getFilterName() + " 拒绝了访问，使用了默认的Abandon策略")));
     }
+
+
 }
