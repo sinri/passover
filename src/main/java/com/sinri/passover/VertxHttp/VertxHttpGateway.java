@@ -55,7 +55,7 @@ public class VertxHttpGateway {
         try {
             return routerClass.getDeclaredConstructor().newInstance();
         } catch (Exception e) {
-            LoggerFactory.getLogger(this.getClass()).error("Cannot found router class " + routerClass, e);
+            LoggerFactory.getLogger(this.getClass()).error("无法找到Router类，根据以下类定义: " + routerClass, e);
         }
         return new BasePassoverRouter();
     }
@@ -68,7 +68,7 @@ public class VertxHttpGateway {
         HttpServer gatewayServer = vertx.createHttpServer(options);
         // 如果网关服务器出现异常，则进行处理
         gatewayServer.exceptionHandler(exception -> {
-            LoggerFactory.getLogger(this.getClass()).info("Exception with the gateway server", exception);
+            LoggerFactory.getLogger(this.getClass()).info("网关HTTP服务出现异常", exception);
         });
 
         // 初始化路由器
@@ -80,7 +80,7 @@ public class VertxHttpGateway {
             new GatewayRequest(request, router, filters, vertx).filterAndProxy();
         }).listen(localListenPort);
 
-        LoggerFactory.getLogger(this.getClass()).info("Main Listen Done on " + localListenPort + " with " + workerPoolSize + " workers");
+        LoggerFactory.getLogger(this.getClass()).info("新的网关HTTP服务已经站立在服务器上，监听" + localListenPort + "端口，线程数量:" + workerPoolSize);
 
     }
 }

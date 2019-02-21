@@ -1,15 +1,13 @@
 package com.sinri.passover.VertxHttp;
 
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpServerRequest;
-import io.vertx.core.logging.LoggerFactory;
 
 abstract public class AbstractRequestFilter {
 
-    HttpServerRequest request;
+    GatewayRequest request;
     private String feedback;
 
-    public AbstractRequestFilter(HttpServerRequest request) {
+    public AbstractRequestFilter(GatewayRequest request) {
         this.request = request;
     }
 
@@ -17,11 +15,15 @@ abstract public class AbstractRequestFilter {
         return feedback;
     }
 
+    abstract public String getFilterName();
+
     /**
      * Let the request be filtered.
      * The filters would be chained.
      * The feedback should be updated.
      * If the result is false, the request would be thrown away.
+     * If you need to share some data among filters,
+     * Use request.getFilterShareDataMap()
      *
      * @param bodyBuffer If body buffer needed in filtering work
      * @return If the request is validated.
@@ -31,7 +33,7 @@ abstract public class AbstractRequestFilter {
             feedback = "Not Checked Yet";
             return shouldThisRequestBeFiltered();
         } catch (Exception e) {
-            LoggerFactory.getLogger(this.getClass()).error("Emmm, shouldThisRequestBeFiltered? No.", e);
+            request.getLogger().error("不能通过 " + getFilterName() + " 的检查。" + feedback, e);
             return false;
         }
     }
