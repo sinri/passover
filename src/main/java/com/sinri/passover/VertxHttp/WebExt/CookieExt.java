@@ -13,10 +13,15 @@ public class CookieExt {
         parsedCookieMap = new HashMap<>();
         respondCookieMap = new HashMap<>();
 
+        System.out.println("[DEBUG] CookieExt build with: " + cookieHeader);
+
         String[] cookieStringParts = cookieHeader.split(";\\s*");
         for (String cookieStringPart : cookieStringParts) {
             String[] pair = cookieStringPart.split("=", 2);
-            //if(pair.length<2)continue;// maybe no need
+            System.out.println("[DEBUG] CookieExt Split Pair, length: " + pair.length + " first: " + pair[0] + " second: " + (pair.length > 1 ? pair[1] : pair[0]));
+            if (pair.length < 2) {
+                continue;// maybe no need
+            }
             parsedCookieMap.put(pair[0], new DefaultCookie(pair[0], pair[1]));
         }
     }
