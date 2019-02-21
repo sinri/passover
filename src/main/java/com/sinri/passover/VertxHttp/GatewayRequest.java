@@ -52,6 +52,10 @@ public class GatewayRequest {
         this.filters = filters;
     }
 
+    public String version() {
+        return "1.0-dev";
+    }
+
     public Map<String, Object> getFilterShareDataMap() {
         return filterShareDataMap;
     }
@@ -218,6 +222,12 @@ public class GatewayRequest {
             headersForLog.append(pair.getKey()).append(" : ").append(pair.getValue()).append("\n");
             requestToService.putHeader(pair.getKey(), pair.getValue());
         });
+        // 添加Passover的身份字段
+        requestToService.putHeader("X-Passover-Version", version());
+        headersForLog.append("X-Passover-Version").append(" : ").append(version()).append("\n");
+        requestToService.putHeader("X-Passover-Request-Id", requestId);
+        headersForLog.append("X-Passover-Request-Id").append(" : ").append(requestId).append("\n");
+
         logger.info("转发器收到网关请求的Headers如下\n" + headersForLog);
 
         return requestToService;
@@ -225,20 +235,25 @@ public class GatewayRequest {
 
     private void proxyRequestWithFullBody() {
         logger.info("囤积的网关请求数据已转发到服务端，坐等服务端回复");
-        createRequestToService().end(bodyBuffer);
+        createRequestToService()
+                .sendHead(headSent -> logger.info("准备转发网关请求到服务端，已发送Headers"))
+                .end(bodyBuffer);
     }
 
     private void proxyRequestWithoutFullBody() {
         HttpClientRequest requestToService = createRequestToService();
+        requestToService.sendHead(headSent -> {
+            logger.info("准备转发网关请求到服务端，已发送Headers");
 
-        request.handler(buffer -> {
-            logger.info("从网关请求读取了" + buffer.length() + "字节Body数据并转发到服务端");
-            requestToService.write(buffer);
-        });
+            request.handler(buffer -> {
+                logger.info("从网关请求读取了" + buffer.length() + "字节Body数据并转发到服务端");
+                requestToService.write(buffer);
+            });
 
-        request.endHandler(event -> {
-            logger.info("网关请求数据已全部转发到服务端，坐等服务端回复");
-            requestToService.end();
+            request.endHandler(event -> {
+                logger.info("网关请求数据已全部转发到服务端，坐等服务端回复");
+                requestToService.end();
+            });
         });
     }
 }
