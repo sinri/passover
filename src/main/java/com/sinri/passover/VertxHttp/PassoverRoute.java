@@ -3,14 +3,34 @@ package com.sinri.passover.VertxHttp;
 import java.util.ArrayList;
 
 public class PassoverRoute {
-    private String host;
-    private int port;
-    private boolean useSSL;
+    private String domain;
+    private String serviceHostForProxy;
+    private int servicePortForProxy;
+    private boolean useHttpsForProxy;
+    private boolean useHttpsForVisitor;
     private String uri;
     //private boolean shouldBeFiltered;
     private boolean shouldBeAbandoned;
     private boolean shouldFilterWithBody;
     private ArrayList<Class<? extends AbstractRequestFilter>> filterClasses = new ArrayList<>();
+
+    public String getDomain() {
+        return domain;
+    }
+
+    public PassoverRoute setDomain(String domain) {
+        this.domain = domain;
+        return this;
+    }
+
+    public boolean isUseHttpsForVisitor() {
+        return useHttpsForVisitor;
+    }
+
+    public PassoverRoute setUseHttpsForVisitor(boolean useHttpsForVisitor) {
+        this.useHttpsForVisitor = useHttpsForVisitor;
+        return this;
+    }
 
     public ArrayList<Class<? extends AbstractRequestFilter>> getFilterClasses() {
         return filterClasses;
@@ -48,30 +68,30 @@ public class PassoverRoute {
         return this;
     }
 
-    public String getHost() {
-        return host;
+    public String getServiceHostForProxy() {
+        return serviceHostForProxy;
     }
 
-    public PassoverRoute setHost(String host) {
-        this.host = host;
+    public PassoverRoute setServiceHostForProxy(String serviceHostForProxy) {
+        this.serviceHostForProxy = serviceHostForProxy;
         return this;
     }
 
-    public int getPort() {
-        return port;
+    public int getServicePortForProxy() {
+        return servicePortForProxy;
     }
 
-    public PassoverRoute setPort(int port) {
-        this.port = port;
+    public PassoverRoute setServicePortForProxy(int servicePortForProxy) {
+        this.servicePortForProxy = servicePortForProxy;
         return this;
     }
 
-    public boolean isUseSSL() {
-        return useSSL;
+    public boolean isUseHttpsForProxy() {
+        return useHttpsForProxy;
     }
 
-    public PassoverRoute setUseSSL(boolean useSSL) {
-        this.useSSL = useSSL;
+    public PassoverRoute setUseHttpsForProxy(boolean useHttpsForProxy) {
+        this.useHttpsForProxy = useHttpsForProxy;
         return this;
     }
 
@@ -84,10 +104,15 @@ public class PassoverRoute {
         return this;
     }
 
+    public String restoreIncomeRequestUrl() {
+        return (isUseHttpsForVisitor() ? "https" : "http") + "://" + domain + uri;
+    }
+
     @Override
     public String toString() {
         return "PassoverRoute("
-                + "host:" + getHost() + ", port:" + getPort() + ", useSSL:" + isUseSSL() + ", uri:" + getUri()
+                + "serviceHostForProxy:" + getServiceHostForProxy() + ", servicePortForProxy:" + getServicePortForProxy() + ", useHttpsForProxy:" + isUseHttpsForProxy() + ", uri:" + getUri()
+                + ", useHttpsForVisitor:" + isUseHttpsForVisitor()
                 + ", shouldBeFiltered:" + isShouldBeFiltered()
                 + ", shouldBeAbandoned:" + shouldBeAbandoned
                 + ", shouldFilterWithBody:" + shouldFilterWithBody

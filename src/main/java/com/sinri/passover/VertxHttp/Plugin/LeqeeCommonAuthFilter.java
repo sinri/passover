@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonObject;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public class LeqeeCommonAuthFilter extends AbstractRequestFilter {
@@ -32,11 +33,16 @@ public class LeqeeCommonAuthFilter extends AbstractRequestFilter {
     }
 
     @Override
-    protected void dealFilterDeny() {
+    protected void dealFilterDeny() throws Exception {
         // 这里要出一个登录页啊啊啊啊
         logger.info("姑且放一个302去登录页吧");
         request.getRequest().response().setStatusCode(302).setStatusMessage("Please Login First");
-        request.getRequest().response().putHeader("Location", "https://account-auth-v3.leqee.com/frontend/passover-login.html");
+        request.getRequest().response().putHeader(
+                "Location",
+                "https://account-auth-v3.leqee.com/frontend/passover-login.html"
+                        + "?callbackUrl=" + request.getRoute().restoreIncomeRequestUrl()
+                        + "&callbackTitle=" + URLEncoder.encode(request.getRoute().getDomain(), "UTF-8")
+        );
         request.getRequest().response().endHandler(event -> {
             logger.info("姑且结束了报文");
             request.getRequest().response().close();

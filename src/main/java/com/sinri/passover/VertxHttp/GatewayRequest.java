@@ -99,7 +99,7 @@ public class GatewayRequest {
         return request;
     }
 
-    void abandonIncomingRequest(AbandonReason reason) {
+    public void abandonIncomingRequest(AbandonReason reason) {
         // 是否需要像SLB一样设置一个特殊的报错回复报文，比现在直接关闭更友好一些。
         request.response()
                 .setStatusCode(reason.code)
@@ -209,9 +209,9 @@ public class GatewayRequest {
 
         // 根据路由准备转发请求的配置
         RequestOptions requestOptions = new RequestOptions()
-                .setHost(route.getHost())
-                .setPort(route.getPort())
-                .setSsl(route.isUseSSL())
+                .setHost(route.getServiceHostForProxy())
+                .setPort(route.getServicePortForProxy())
+                .setSsl(route.isUseHttpsForProxy())
                 .setURI(route.getUri());
 
         // 创建转发请求

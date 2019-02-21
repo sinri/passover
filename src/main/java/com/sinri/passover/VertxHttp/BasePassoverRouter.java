@@ -11,9 +11,11 @@ public class BasePassoverRouter {
     public PassoverRoute analyze(HttpServerRequest request) {
         String[] hostParts = request.host().split(":");
         return new PassoverRoute()
-                .setHost(hostParts[0])
-                .setPort(request.isSSL() ? 443 : 80)
-                .setUseSSL(request.isSSL())
+                .setDomain(hostParts[0])
+                .setServiceHostForProxy(hostParts[0])
+                .setServicePortForProxy(request.isSSL() ? 443 : 80)
+                .setUseHttpsForProxy(request.isSSL())
+                .setUseHttpsForVisitor(request.isSSL() || request.getHeader("X-Forwarded-Proto").equalsIgnoreCase("https"))
                 .setUri(request.uri())
                 .setShouldBeAbandoned(false)
                 .setShouldFilterWithBody(true);

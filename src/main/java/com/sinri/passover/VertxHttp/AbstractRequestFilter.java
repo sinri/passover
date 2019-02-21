@@ -59,7 +59,7 @@ abstract public class AbstractRequestFilter {
     /**
      * 如果有需要自定义拒绝回调可以重载此方法。重点是要关闭网关请求的连接。
      */
-    protected void dealFilterDeny() {
+    protected void dealFilterDeny() throws Exception {
         request.abandonIncomingRequest(AbandonReason.AbandonByFilter(new Exception("Filter " + getFilterName() + " 拒绝了访问，使用了默认的Abandon策略")));
     }
 

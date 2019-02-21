@@ -9,10 +9,10 @@ public class FirstRouter extends BasePassoverRouter {
     @Override
     public PassoverRoute analyze(HttpServerRequest request) {
         PassoverRoute route = super.analyze(request);
-        if (route.getHost().equals("testoctet.leqee.com")) {
-            route.setHost("10.29.193.97").setUseSSL(false);
-        } else if (route.getHost().equals("tianwenlook.leqee.com")) {
-            route.setHost("10.28.40.105").setUseSSL(false);
+        if (route.getServiceHostForProxy().equals("testoctet.leqee.com")) {
+            route.setServiceHostForProxy("10.29.193.97").setUseHttpsForProxy(false);
+        } else if (route.getServiceHostForProxy().equals("tianwenlook.leqee.com")) {
+            route.setServiceHostForProxy("10.28.40.105").setUseHttpsForProxy(false);
             route.appendFilterClass(LeqeeCommonAuthFilter.class);
         }
         return route;
