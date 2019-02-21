@@ -34,8 +34,14 @@ public class LeqeeCommonAuthFilter extends AbstractRequestFilter {
     @Override
     protected void dealFilterDeny() {
         // 这里要出一个登录页啊啊啊啊
+        logger.info("姑且放一个302去登录页吧");
+        request.getRequest().response().setStatusCode(302).setStatusMessage("Please Login First");
         request.getRequest().response().putHeader("Location", "https://account-auth-v3.leqee.com/frontend/passover-login.html");
-        request.getRequest().response().end();
+        request.getRequest().response().endHandler(event -> {
+            logger.info("姑且结束了报文");
+            request.getRequest().response().close();
+            request.getRequest().connection().close();
+        }).end();
     }
 
     private boolean verifyLeqeeAAToken(String token) {

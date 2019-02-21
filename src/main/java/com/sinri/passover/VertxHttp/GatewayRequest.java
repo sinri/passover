@@ -104,8 +104,11 @@ public class GatewayRequest {
         request.response()
                 .setStatusCode(reason.code)
                 .setStatusMessage(reason.message)
+                .endHandler(event -> {
+                    request.response().close();
+                    request.connection().close();
+                })
                 .end();
-        request.connection().close();
     }
 
     private void computeRoute() {
