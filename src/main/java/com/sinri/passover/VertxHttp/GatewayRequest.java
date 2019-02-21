@@ -1,5 +1,6 @@
 package com.sinri.passover.VertxHttp;
 
+import com.sinri.passover.VertxHttp.WebExt.CookieExt;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
@@ -25,6 +26,7 @@ public class GatewayRequest {
     private ArrayList<Class<AbstractRequestFilter>> filters;
     private Logger logger;
     private Map<String, Object> filterShareDataMap;
+    private CookieExt cookieExt;
 
     GatewayRequest(HttpServerRequest request, BasePassoverRouter router, ArrayList<Class<AbstractRequestFilter>> filters, Vertx vertx) {
         this.vertx = vertx;
@@ -50,6 +52,14 @@ public class GatewayRequest {
         // 登记Filters
         this.filterShareDataMap = new HashMap<>();
         this.filters = filters;
+
+        // 解析Cookie
+        this.cookieExt = new CookieExt(request.getHeader("cookie"));
+        debugListCookies();
+    }
+
+    public CookieExt getCookieExt() {
+        return cookieExt;
     }
 
     public String version() {
@@ -250,5 +260,13 @@ public class GatewayRequest {
             logger.info("网关请求数据已全部转发到服务端，坐等服务端回复");
             requestToService.end();
         });
+    }
+
+    public void debugListCookies() {
+        StringBuilder debug = new StringBuilder();
+        cookieExt.getParsedCookieMap().forEach((key, cookie) -> {
+            debug.append(key).append(" : ").append(cookie.toString()).append("\n");
+        });
+        logger.info("Debug Show Cookies:\n" + debug);
     }
 }
