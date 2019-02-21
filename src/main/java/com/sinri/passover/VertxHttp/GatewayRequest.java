@@ -23,12 +23,12 @@ public class GatewayRequest {
     private Buffer bodyBuffer;
     private PassoverRoute route;
     private BasePassoverRouter router;
-    private ArrayList<Class<AbstractRequestFilter>> filters;
+    //private ArrayList<Class<AbstractRequestFilter>> filters;
     private Logger logger;
     private Map<String, Object> filterShareDataMap;
     private CookieExt cookieExt;
 
-    GatewayRequest(HttpServerRequest request, BasePassoverRouter router, ArrayList<Class<AbstractRequestFilter>> filters, Vertx vertx) {
+    GatewayRequest(HttpServerRequest request, BasePassoverRouter router, Vertx vertx) {
         this.vertx = vertx;
 
         this.request = request;
@@ -49,9 +49,8 @@ public class GatewayRequest {
         this.router = router;
         computeRoute();
 
-        // 登记Filters
+        // Filters 数据共享初始化
         this.filterShareDataMap = new HashMap<>();
-        this.filters = filters;
 
         // 解析Cookie
         this.cookieExt = new CookieExt(request.getHeader("cookie"));
@@ -112,21 +111,22 @@ public class GatewayRequest {
             abandonIncomingRequest(AbandonReason.AbandonByRoute());
             return;
         }
-        // 根据路由设置或者判断filters数量，检查是否需要filters
-        if (route.isShouldBeFiltered() && filters != null && !filters.isEmpty()) {
+        // 根据路由检查是否需要filters
+        if (route.isShouldBeFiltered()) {
             if (!route.isShouldFilterWithBody()) {
                 logger.info("开始执行Filters，根据设定，无需Body");
                 // 执行Filters
                 try {
-                    if (!applyFilters()) return;
+                    if (applyFilters()) {
+                        logger.info("已通过全部Filters无Body校验，开始转发到服务端");
+                    } else {
+                        return;
+                    }
                 } catch (Exception applyFilterException) {
                     logger.error("在Filters中出现异常", applyFilterException);
                     abandonIncomingRequest(AbandonReason.AbandonByFilter(applyFilterException));
                     return;
                 }
-
-                logger.info("已通过全部Filters无Body校验，开始转发到服务端");
-
                 // Filters全部通过之后就可以直接proxy了
                 proxyRequestWithoutFullBody();
             } else {
@@ -143,15 +143,16 @@ public class GatewayRequest {
 
                     // 执行Filters
                     try {
-                        if (!applyFilters()) return;
+                        if (applyFilters()) {
+                            logger.info("已通过全部Filters含Body校验，开始转发到服务端");
+                        } else {
+                            return;
+                        }
                     } catch (Exception applyFilterException) {
                         logger.error("在Filters中出现异常", applyFilterException);
                         abandonIncomingRequest(AbandonReason.AbandonByFilter(applyFilterException));
                         return;
                     }
-
-                    logger.info("已通过全部Filters含Body校验，开始转发到服务端");
-
                     proxyRequestWithFullBody();
                 });
             }
@@ -170,9 +171,10 @@ public class GatewayRequest {
      */
     private boolean applyFilters() throws Exception {
         // 如果有Filters那就一个个过，找不到filter或者filter失败的话就会抛出异常
-        if (filters != null) {
-            for (int i = 0; i < filters.size(); i++) {
-                Class<AbstractRequestFilter> filterClass = filters.get(i);
+        ArrayList<Class<AbstractRequestFilter>> filterClassList = route.getFilterClasses();
+        if (filterClassList != null) {
+            for (int i = 0; i < filterClassList.size(); i++) {
+                Class<AbstractRequestFilter> filterClass = filterClassList.get(i);
 
                 logger.info("第" + i + "个Filter " + filterClass + " 到达门口");
 

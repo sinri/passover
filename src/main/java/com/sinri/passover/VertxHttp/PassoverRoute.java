@@ -1,21 +1,33 @@
 package com.sinri.passover.VertxHttp;
 
+import java.util.ArrayList;
+
 public class PassoverRoute {
     private String host;
     private int port;
     private boolean useSSL;
     private String uri;
-    private boolean shouldBeFiltered;
+    //private boolean shouldBeFiltered;
     private boolean shouldBeAbandoned;
     private boolean shouldFilterWithBody;
+    private ArrayList<Class<AbstractRequestFilter>> filterClasses = new ArrayList<>();
 
-    public boolean isShouldBeFiltered() {
-        return shouldBeFiltered;
+    public ArrayList<Class<AbstractRequestFilter>> getFilterClasses() {
+        return filterClasses;
     }
 
-    public PassoverRoute setShouldBeFiltered(boolean shouldBeFiltered) {
-        this.shouldBeFiltered = shouldBeFiltered;
+    public PassoverRoute setFilterClasses(ArrayList<Class<AbstractRequestFilter>> filterClasses) {
+        this.filterClasses = filterClasses;
         return this;
+    }
+
+    public PassoverRoute appendFilterClass(Class<AbstractRequestFilter> filterClass) {
+        this.filterClasses.add(filterClass);
+        return this;
+    }
+
+    public boolean isShouldBeFiltered() {
+        return filterClasses != null && !filterClasses.isEmpty();
     }
 
     public boolean isShouldBeAbandoned() {
@@ -76,7 +88,7 @@ public class PassoverRoute {
     public String toString() {
         return "PassoverRoute("
                 + "host:" + getHost() + ", port:" + getPort() + ", useSSL:" + isUseSSL() + ", uri:" + getUri()
-                + ", shouldBeFiltered:" + shouldBeFiltered
+                + ", shouldBeFiltered:" + isShouldBeFiltered()
                 + ", shouldBeAbandoned:" + shouldBeAbandoned
                 + ", shouldFilterWithBody:" + shouldFilterWithBody
                 + ")";

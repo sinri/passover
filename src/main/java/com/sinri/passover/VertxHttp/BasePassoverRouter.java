@@ -16,7 +16,6 @@ public class BasePassoverRouter {
                 .setUseSSL(request.isSSL())
                 .setUri(request.uri())
                 .setShouldBeAbandoned(false)
-                .setShouldBeFiltered(true)
                 .setShouldFilterWithBody(true);
     }
 }

@@ -6,14 +6,12 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.logging.LoggerFactory;
 
-import java.util.ArrayList;
-
 public class VertxHttpGateway {
     private Vertx vertx;
     private int workerPoolSize = 40;
     private int localListenPort = 80;
     private Class<BasePassoverRouter> routerClass = BasePassoverRouter.class;
-    private ArrayList<Class<AbstractRequestFilter>> filters = new ArrayList<>();
+    //private ArrayList<Class<AbstractRequestFilter>> filters = new ArrayList<>();
 
     public Class<BasePassoverRouter> getRouterClass() {
         return routerClass;
@@ -24,14 +22,14 @@ public class VertxHttpGateway {
         return this;
     }
 
-    public ArrayList<Class<AbstractRequestFilter>> getFilters() {
-        return filters;
-    }
+//    public ArrayList<Class<AbstractRequestFilter>> getFilters() {
+//        return filters;
+//    }
 
-    public VertxHttpGateway setFilters(ArrayList<Class<AbstractRequestFilter>> filters) {
-        this.filters = filters;
-        return this;
-    }
+//    public VertxHttpGateway setFilters(ArrayList<Class<AbstractRequestFilter>> filters) {
+//        this.filters = filters;
+//        return this;
+//    }
 
     public int getWorkerPoolSize() {
         return workerPoolSize;
@@ -77,7 +75,7 @@ public class VertxHttpGateway {
         // 网关服务器处理请求
         gatewayServer.requestHandler(request -> {
             // 创建网关请求封装类，根据路由设置或者判断filters数量，检查是否需要filters
-            new GatewayRequest(request, router, filters, vertx).filterAndProxy();
+            new GatewayRequest(request, router, vertx).filterAndProxy();
         }).listen(localListenPort);
 
         LoggerFactory.getLogger(this.getClass()).info("新的网关HTTP服务已经站立在服务器上，监听" + localListenPort + "端口，线程数量:" + workerPoolSize);
