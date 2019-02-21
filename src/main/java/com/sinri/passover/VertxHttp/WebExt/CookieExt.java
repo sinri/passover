@@ -9,6 +9,10 @@ public class CookieExt {
     private Map<String, DefaultCookie> parsedCookieMap;
     private Map<String, DefaultCookie> respondCookieMap;
 
+    public CookieExt() {
+        parsedCookieMap = new HashMap<>();
+        respondCookieMap = new HashMap<>();
+    }
     public CookieExt(String cookieHeader) {
         parsedCookieMap = new HashMap<>();
         respondCookieMap = new HashMap<>();

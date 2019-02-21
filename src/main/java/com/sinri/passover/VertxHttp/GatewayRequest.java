@@ -53,7 +53,16 @@ public class GatewayRequest {
         this.filterShareDataMap = new HashMap<>();
 
         // 解析Cookie
-        this.cookieExt = new CookieExt(request.getHeader("cookie"));
+        this.cookieExt = null;
+        request.headers().forEach(header -> {
+            if (header.getKey().equalsIgnoreCase("cookie")) {
+                this.cookieExt = new CookieExt(header.getValue());
+                logger.info("Updated CookieExt with item named " + header.getKey());
+            }
+        });
+        if (this.cookieExt == null) {
+            this.cookieExt = new CookieExt();
+        }
         debugListCookies();
     }
 
