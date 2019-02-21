@@ -80,7 +80,7 @@ public class GatewayRequest {
         return request;
     }
 
-    private void abandonIncomingRequest(AbandonReason reason) {
+    void abandonIncomingRequest(AbandonReason reason) {
         // 是否需要像SLB一样设置一个特殊的报错回复报文，比现在直接关闭更友好一些。
         request.response()
                 .setStatusCode(reason.code)
@@ -108,8 +108,7 @@ public class GatewayRequest {
                 logger.info("开始执行Filters，根据设定，无需Body");
                 // 执行Filters
                 try {
-                    // applyFiltersWithoutBody(request);
-                    applyFilters();
+                    if (!applyFilters()) return;
                 } catch (Exception applyFilterException) {
                     logger.error("在Filters中出现异常", applyFilterException);
                     abandonIncomingRequest(AbandonReason.AbandonByFilter(applyFilterException));
@@ -134,7 +133,7 @@ public class GatewayRequest {
 
                     // 执行Filters
                     try {
-                        applyFilters();
+                        if (!applyFilters()) return;
                     } catch (Exception applyFilterException) {
                         logger.error("在Filters中出现异常", applyFilterException);
                         abandonIncomingRequest(AbandonReason.AbandonByFilter(applyFilterException));
@@ -156,8 +155,10 @@ public class GatewayRequest {
 
     /**
      * Support both kinds of filter, with or without body
+     * @return 如果一切正常需要继续转发则返回true，如果执行了Filter定义的回调并停止转发则返回false
+     * @throws Exception 如果出现了不可控的异常则扔异常去被abandoned
      */
-    private void applyFilters() throws Exception {
+    private boolean applyFilters() throws Exception {
         // 如果有Filters那就一个个过，找不到filter或者filter失败的话就会抛出异常
         if (filters != null) {
             for (int i = 0; i < filters.size(); i++) {
@@ -167,13 +168,13 @@ public class GatewayRequest {
 
                 AbstractRequestFilter requestFilter = filterClass.getDeclaredConstructor(GatewayRequest.class).newInstance(this);
                 if (!requestFilter.filter(bodyBuffer)) {
-                    logger.error("第" + i + "个Filter " + filterClass + " 未发现门框和门楣上有血，磨刀霍霍。 Feedback: " + requestFilter.getFeedback());
-                    throw new Exception("第" + i + "个Filter " + filterClass + " 未通过检查。 Feedback: " + requestFilter.getFeedback());
+                    logger.error("第" + i + "个Filter " + filterClass + " 未发现门框和门楣上有血，已进门击杀，准备走人。 Feedback: " + requestFilter.getFeedback());
+                    return false;
                 }
             }
         }
 
-        //logger.info("Filters All Done, ready to send request to service");
+        return true;
     }
 
     private HttpClientRequest createRequestToService() {
