@@ -10,18 +10,18 @@ public class PassoverRoute {
     //private boolean shouldBeFiltered;
     private boolean shouldBeAbandoned;
     private boolean shouldFilterWithBody;
-    private ArrayList<Class<AbstractRequestFilter>> filterClasses = new ArrayList<>();
+    private ArrayList<Class<? extends AbstractRequestFilter>> filterClasses = new ArrayList<>();
 
-    public ArrayList<Class<AbstractRequestFilter>> getFilterClasses() {
+    public ArrayList<Class<? extends AbstractRequestFilter>> getFilterClasses() {
         return filterClasses;
     }
 
-    public PassoverRoute setFilterClasses(ArrayList<Class<AbstractRequestFilter>> filterClasses) {
+    public PassoverRoute setFilterClasses(ArrayList<Class<? extends AbstractRequestFilter>> filterClasses) {
         this.filterClasses = filterClasses;
         return this;
     }
 
-    public PassoverRoute appendFilterClass(Class<AbstractRequestFilter> filterClass) {
+    public PassoverRoute appendFilterClass(Class<? extends AbstractRequestFilter> filterClass) {
         this.filterClasses.add(filterClass);
         return this;
     }

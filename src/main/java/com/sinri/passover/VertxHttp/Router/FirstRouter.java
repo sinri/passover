@@ -2,6 +2,7 @@ package com.sinri.passover.VertxHttp.Router;
 
 import com.sinri.passover.VertxHttp.BasePassoverRouter;
 import com.sinri.passover.VertxHttp.PassoverRoute;
+import com.sinri.passover.VertxHttp.Plugin.LeqeeCommonAuthFilter;
 import io.vertx.core.http.HttpServerRequest;
 
 public class FirstRouter extends BasePassoverRouter {
@@ -12,6 +13,7 @@ public class FirstRouter extends BasePassoverRouter {
             route.setHost("10.29.193.97").setUseSSL(false);
         } else if (route.getHost().equals("tianwenlook.leqee.com")) {
             route.setHost("10.28.40.105").setUseSSL(false);
+            route.appendFilterClass(LeqeeCommonAuthFilter.class);
         }
         return route;
     }

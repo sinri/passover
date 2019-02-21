@@ -181,10 +181,10 @@ public class GatewayRequest {
      */
     private boolean applyFilters() throws Exception {
         // 如果有Filters那就一个个过，找不到filter或者filter失败的话就会抛出异常
-        ArrayList<Class<AbstractRequestFilter>> filterClassList = route.getFilterClasses();
+        ArrayList<Class<? extends AbstractRequestFilter>> filterClassList = route.getFilterClasses();
         if (filterClassList != null) {
             for (int i = 0; i < filterClassList.size(); i++) {
-                Class<AbstractRequestFilter> filterClass = filterClassList.get(i);
+                Class<? extends AbstractRequestFilter> filterClass = filterClassList.get(i);
 
                 logger.info("第" + i + "个Filter " + filterClass + " 到达门口");
 
@@ -274,7 +274,7 @@ public class GatewayRequest {
         });
     }
 
-    public void debugListCookies() {
+    private void debugListCookies() {
         StringBuilder debug = new StringBuilder();
         cookieExt.getParsedCookieMap().forEach((key, cookie) -> {
             debug.append(key).append(" : ").append(cookie.toString()).append("\n");
