@@ -51,6 +51,7 @@ public class SampleFlowLimitStatFilter extends AbstractRequestStatFilter {
         if (timeInSecond > dictTime) {
             dict.clear();
             logger.debug("Dict cleared as out-dated");
+            dictTime = timeInSecond;
         }
         Integer previous = dict.put(hash, dict.getOrDefault(hash, 0) + 1);
         Integer current = dict.get(hash);
