@@ -61,7 +61,7 @@ public class SampleFlowLimitStatFilter extends AbstractRequestStatFilter {
         if (current < flowLimit) {
             return true;
         } else {
-            logger.error("[CC-ALERT] 这一秒的访问流量 " + current + " 已经超过了额定值 " + flowLimit + " 准备拒绝");
+            logger.error("[CC-ALERT] 这一秒 " + hash + " 的访问流量 " + current + " 已经超过了额定值 " + flowLimit + " 准备拒绝");
             return false;
         }
     }
