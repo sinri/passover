@@ -8,6 +8,10 @@ import java.util.regex.Pattern;
 
 public class BasePassoverRouter {
 
+    public String name() {
+        return "BasePassoverRouter";
+    }
+
     /**
      * Analyze request and compute host, port, useSSL and getUri, etc
      * Override this method if needed.

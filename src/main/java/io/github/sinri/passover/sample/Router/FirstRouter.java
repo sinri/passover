@@ -8,6 +8,11 @@ import io.vertx.core.http.HttpServerRequest;
 
 public class FirstRouter extends BasePassoverRouter {
     @Override
+    public String name() {
+        return "FirstRouter";
+    }
+
+    @Override
     public PassoverRoute analyze(HttpServerRequest request) {
         PassoverRoute route = super.analyze(request);
         if (route.getServiceHostForProxy().equals("testoctet.leqee.com")) {
