@@ -30,7 +30,8 @@ public class SampleFlowLimitStatFilter extends AbstractRequestStatFilter {
     @Override
     protected String computeCategoryHash() {
         String aa_user_id = (String) request.getFilterShareDataMap().getOrDefault("aa_user_id", "-1");
-        return aa_user_id + "@" + request.getRequest().remoteAddress().host();
+        String client_ip = request.getRealIpOfIncomingRequest();
+        return aa_user_id + "@" + client_ip;
     }
 
     @Override

@@ -249,9 +249,9 @@ public class GatewayRequest {
         });
         // 添加Passover的身份字段
         requestToService.putHeader("X-Passover-Version", version());
-        headersForLog.append("X-Passover-Version").append(" : ").append(version()).append("\n");
+        headersForLog.append("转发器追加 X-Passover-Version").append(" : ").append(version()).append("\n");
         requestToService.putHeader("X-Passover-Request-Id", requestId);
-        headersForLog.append("X-Passover-Request-Id").append(" : ").append(requestId).append("\n");
+        headersForLog.append("转发器追加 X-Passover-Request-Id").append(" : ").append(requestId).append("\n");
 
         logger.info("转发器收到网关请求的Headers如下\n" + headersForLog);
 
@@ -274,6 +274,14 @@ public class GatewayRequest {
             logger.info("网关请求数据已全部转发到服务端，坐等服务端回复");
             requestToService.end();
         });
+    }
+
+    public String getRealIpOfIncomingRequest() {
+        String client_ip = request.remoteAddress().host();
+        if (request.getHeader("X-Forwarded-For") != null) {
+            client_ip = request.getHeader("X-Forwarded-For");
+        }
+        return client_ip;
     }
 
     private void debugListCookies() {
