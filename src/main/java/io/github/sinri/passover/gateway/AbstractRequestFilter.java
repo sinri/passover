@@ -7,7 +7,7 @@ import io.vertx.core.logging.LoggerFactory;
 abstract public class AbstractRequestFilter {
 
     protected GatewayRequest request;
-    private String feedback;
+    protected String feedback;
     protected Logger logger;
 
     public AbstractRequestFilter(GatewayRequest request) {

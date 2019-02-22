@@ -54,10 +54,12 @@ public class SampleFlowLimitStatFilter extends AbstractRequestStatFilter {
         logger.debug("dict updated for hash " + hash + " -> " + current);
 
         if (current < flowLimit) {
-            logger.error("[CC-SAFE] 这一秒 " + hash + " 的访问流量 " + current + " 没有超过了额定值 " + flowLimit + " 准备放行");
+            feedback = "[CC-SAFE] 这一秒 " + hash + " 的访问流量 " + current + " 没有超过了额定值 " + flowLimit + " 准备放行";
+            //logger.error("[CC-SAFE] 这一秒 " + hash + " 的访问流量 " + current + " 没有超过了额定值 " + flowLimit + " 准备放行");
             return true;
         } else {
-            logger.error("[CC-ALERT] 这一秒 " + hash + " 的访问流量 " + current + " 已经超过了额定值 " + flowLimit + " 准备拒绝");
+            feedback = "[CC-ALERT] 这一秒 " + hash + " 的访问流量 " + current + " 已经超过了额定值 " + flowLimit + " 准备拒绝";
+            //logger.error("[CC-ALERT] 这一秒 " + hash + " 的访问流量 " + current + " 已经超过了额定值 " + flowLimit + " 准备拒绝");
             return false;
         }
     }
