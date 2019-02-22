@@ -1,8 +1,8 @@
-package com.sinri.passover.VertxHttp.Router;
+package io.github.sinri.passover.sample.Router;
 
-import com.sinri.passover.VertxHttp.BasePassoverRouter;
-import com.sinri.passover.VertxHttp.PassoverRoute;
-import com.sinri.passover.VertxHttp.Plugin.LeqeeCommonAuthFilter;
+import io.github.sinri.passover.gateway.BasePassoverRouter;
+import io.github.sinri.passover.gateway.PassoverRoute;
+import io.github.sinri.passover.sample.Plugin.LeqeeCommonAuthFilter;
 import io.vertx.core.http.HttpServerRequest;
 
 public class FirstRouter extends BasePassoverRouter {

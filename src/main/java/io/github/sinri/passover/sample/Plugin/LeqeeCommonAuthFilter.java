@@ -1,7 +1,7 @@
-package com.sinri.passover.VertxHttp.Plugin;
+package io.github.sinri.passover.sample.Plugin;
 
-import com.sinri.passover.VertxHttp.AbstractRequestFilter;
-import com.sinri.passover.VertxHttp.GatewayRequest;
+import io.github.sinri.passover.gateway.AbstractRequestFilter;
+import io.github.sinri.passover.gateway.GatewayRequest;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.vertx.core.json.JsonObject;
 

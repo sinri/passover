@@ -1,4 +1,4 @@
-package com.sinri.passover.VertxHttp;
+package io.github.sinri.passover.gateway;
 
 import java.util.ArrayList;
 
@@ -9,7 +9,6 @@ public class PassoverRoute {
     private boolean useHttpsForProxy;
     private boolean useHttpsForVisitor;
     private String uri;
-    //private boolean shouldBeFiltered;
     private boolean shouldBeAbandoned;
     private boolean shouldFilterWithBody;
     private ArrayList<Class<? extends AbstractRequestFilter>> filterClasses = new ArrayList<>();

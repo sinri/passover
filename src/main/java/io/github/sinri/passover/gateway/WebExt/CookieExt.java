@@ -1,4 +1,4 @@
-package com.sinri.passover.VertxHttp.WebExt;
+package io.github.sinri.passover.gateway.WebExt;
 
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 

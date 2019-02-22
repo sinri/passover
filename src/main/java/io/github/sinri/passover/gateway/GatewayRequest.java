@@ -1,6 +1,6 @@
-package com.sinri.passover.VertxHttp;
+package io.github.sinri.passover.gateway;
 
-import com.sinri.passover.VertxHttp.WebExt.CookieExt;
+import io.github.sinri.passover.gateway.WebExt.CookieExt;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;

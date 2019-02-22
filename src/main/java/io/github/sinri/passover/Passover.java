@@ -1,7 +1,7 @@
-package com.sinri.passover;
+package io.github.sinri.passover;
 
-import com.sinri.passover.VertxHttp.Router.FirstRouter;
-import com.sinri.passover.VertxHttp.VertxHttpGateway;
+import io.github.sinri.passover.gateway.VertxHttpGateway;
+import io.github.sinri.passover.sample.Router.FirstRouter;
 
 public class Passover {
     public static void main(String[] args) {

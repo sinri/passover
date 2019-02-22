@@ -1,4 +1,4 @@
-package com.sinri.passover.VertxHttp;
+package io.github.sinri.passover.gateway;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.logging.Logger;

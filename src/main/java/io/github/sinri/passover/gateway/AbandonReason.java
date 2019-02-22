@@ -1,4 +1,4 @@
-package com.sinri.passover.VertxHttp;
+package io.github.sinri.passover.gateway;
 
 public class AbandonReason {
     int code;

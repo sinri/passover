@@ -16,6 +16,6 @@
 
 初步的应用
 
-* Service端无身份机制，利用Passover限制非AA登录的场景（未登录需要进行登陆页转发）
-* Service端有身份验证机制，利用Passover预先校验，消灭恶意请求（未登录的拒否）
-* 监控访问频率
+* Service端无身份机制，利用Passover限制非AA登录的场景（未登录需要进行登陆页转发） → FirstRouter + LeqeeCommonAuthFilter
+* Service端有身份验证机制，利用Passover预先校验，消灭恶意请求（未登录的拒否）→ TODO 暂时没有实验场景
+* 监控访问频率 → TODO
