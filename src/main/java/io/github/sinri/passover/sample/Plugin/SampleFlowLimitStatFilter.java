@@ -48,22 +48,30 @@ public class SampleFlowLimitStatFilter extends AbstractRequestStatFilter {
     protected boolean checkPassable() throws Exception {
         long timeInSecond = (new Date()).getTime() / 1000;
         String hash = computeCategoryHash() + "@" + timeInSecond;
-        if (timeInSecond > dictTime) {
-            dict.clear();
-            logger.debug("Dict cleared as out-dated");
-            dictTime = timeInSecond;
-        }
-        Integer previous = dict.put(hash, dict.getOrDefault(hash, 0) + 1);
-        Integer current = dict.get(hash);
-        if (previous != null && current != previous + 1) {
-            logger.warn("dict出现了并发问题");
-        }
+
+        Integer current = safeIncrement(timeInSecond, hash);
         logger.debug("dict updated for hash " + hash + " -> " + current);
+
         if (current < flowLimit) {
+            logger.error("[CC-SAFE] 这一秒 " + hash + " 的访问流量 " + current + " 没有超过了额定值 " + flowLimit + " 准备放行");
             return true;
         } else {
             logger.error("[CC-ALERT] 这一秒 " + hash + " 的访问流量 " + current + " 已经超过了额定值 " + flowLimit + " 准备拒绝");
             return false;
         }
+    }
+
+    private static synchronized Integer safeIncrement(long timeInSecond, String hash) {
+        if (timeInSecond > dictTime) {
+            dict.clear();
+            //logger.debug("Dict cleared as out-dated");
+            dictTime = timeInSecond;
+        }
+        Integer previous = dict.put(hash, dict.getOrDefault(hash, 0) + 1);
+        Integer current = dict.get(hash);
+        //if (previous != null && current != previous + 1) {
+        //logger.warn("dict出现了并发问题");
+        //}
+        return current;
     }
 }
