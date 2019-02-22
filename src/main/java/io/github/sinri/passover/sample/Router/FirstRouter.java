@@ -3,6 +3,7 @@ package io.github.sinri.passover.sample.Router;
 import io.github.sinri.passover.gateway.BasePassoverRouter;
 import io.github.sinri.passover.gateway.PassoverRoute;
 import io.github.sinri.passover.sample.Plugin.LeqeeCommonAuthFilter;
+import io.github.sinri.passover.sample.Plugin.SampleFlowLimitStatFilter;
 import io.vertx.core.http.HttpServerRequest;
 
 public class FirstRouter extends BasePassoverRouter {
@@ -14,6 +15,7 @@ public class FirstRouter extends BasePassoverRouter {
         } else if (route.getServiceHostForProxy().equals("tianwenlook.leqee.com")) {
             route.setServiceHostForProxy("10.28.40.105").setUseHttpsForProxy(false);
             route.appendFilterClass(LeqeeCommonAuthFilter.class);
+            route.appendFilterClass(SampleFlowLimitStatFilter.class);
         }
         return route;
     }

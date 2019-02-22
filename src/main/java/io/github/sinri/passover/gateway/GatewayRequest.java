@@ -1,7 +1,6 @@
 package io.github.sinri.passover.gateway;
 
 import io.github.sinri.passover.gateway.WebExt.CookieExt;
-import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
@@ -17,7 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GatewayRequest {
-    private Vertx vertx;
+    //private Vertx vertx;
     private HttpServerRequest request;
     private String requestId;
     private Buffer bodyBuffer;
@@ -28,8 +27,8 @@ public class GatewayRequest {
     private Map<String, Object> filterShareDataMap;
     private CookieExt cookieExt;
 
-    GatewayRequest(HttpServerRequest request, BasePassoverRouter router, Vertx vertx) {
-        this.vertx = vertx;
+    GatewayRequest(HttpServerRequest request, BasePassoverRouter router) {
+        //this.vertx = VertxHttpGateway.getVertx();
 
         this.request = request;
         this.requestId = UUID.randomUUID().toString();
@@ -204,7 +203,7 @@ public class GatewayRequest {
 
     private HttpClientRequest createRequestToService() {
         // 准备转发器并设置连接回调
-        HttpClient client = vertx.createHttpClient();
+        HttpClient client = VertxHttpGateway.getVertx().createHttpClient();
         client.connectionHandler(httpConnection -> logger.info("转发器已连接服务端 " + httpConnection.remoteAddress()));
 
         // 根据路由准备转发请求的配置

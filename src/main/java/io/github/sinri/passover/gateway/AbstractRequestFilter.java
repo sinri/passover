@@ -63,5 +63,4 @@ abstract public class AbstractRequestFilter {
         request.abandonIncomingRequest(AbandonReason.AbandonByFilter(new Exception("Filter " + getFilterName() + " 拒绝了访问，使用了默认的Abandon策略")));
     }
 
-
 }
