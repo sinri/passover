@@ -7,8 +7,6 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.logging.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
-
 public class VertxHttpGateway {
     private static Vertx vertx;
     private static ConfigManager configManager;
@@ -17,12 +15,7 @@ public class VertxHttpGateway {
     //private static int workerPoolSize = 40;
 
     public VertxHttpGateway() {
-        try {
-            router = configManager.getPassoverConfig().createRouter();
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            LoggerFactory.getLogger(this.getClass()).warn("配置中设置的路由无法加载，将使用默认路由", e);
-            router = new BasePassoverRouter();
-        }
+        router = configManager.getPassoverConfig().getRouter();
     }
 
     public static ConfigManager getConfigManager() {
@@ -87,7 +80,7 @@ public class VertxHttpGateway {
             new GatewayRequest(request, router).filterAndProxy();
         }).listen(configManager.getPassoverConfig().getLocalListenPort());
 
-        LoggerFactory.getLogger(this.getClass()).info("新的网关HTTP服务已经站立在服务器上，监听" + configManager.getPassoverConfig().getLocalListenPort() + "端口，线程数量:" + configManager.getPassoverConfig().getWorkerPoolSize());
+        LoggerFactory.getLogger(this.getClass()).info("新的网关HTTP服务已经站立在服务器上。" + configManager.getPassoverConfig().toString());
 
     }
 }

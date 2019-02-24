@@ -7,7 +7,6 @@ import io.vertx.core.cli.CommandLine;
 import io.vertx.core.cli.TypedOption;
 import io.vertx.core.logging.LoggerFactory;
 
-import java.io.IOException;
 import java.util.Arrays;
 
 public class Passover {
@@ -21,6 +20,7 @@ public class Passover {
                                     .setShortName("c")
                                     .setDescription("给定配置文件夹，否则使用默认配置。")
                                     .setRequired(false)
+                                    .setType(String.class)
                     );
             CommandLine commandLine = cli.parse(Arrays.asList(args));
             if (!commandLine.isValid() && commandLine.isAskingForHelp()) {
@@ -32,7 +32,7 @@ public class Passover {
 
             String configDir = commandLine.getOptionValue("config-dir");
             VertxHttpGateway.initializeVertx(new ConfigManager(configDir));
-        } catch (IOException e) {
+        } catch (Exception e) {
             LoggerFactory.getLogger(Passover.class).error("Passover 初始化失败", e);
             System.exit(2);
         }

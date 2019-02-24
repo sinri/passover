@@ -10,10 +10,16 @@ public class ConfigManager {
 
     private File configDir;
 
-    public ConfigManager(String configDirPath) throws IOException {
-        configDir = new File(configDirPath);
-        if (!configDir.exists() || !configDir.isDirectory() || !configDir.canRead()) {
-            throw new IOException("给定的配置目录不可用");
+    public ConfigManager(String configDirPath) {
+        try {
+            configDir = null;
+            if (configDirPath == null) throw new Exception("未给定配置目录，将使用默认的配置");
+            configDir = new File(configDirPath);
+            if (!configDir.exists() || !configDir.isDirectory() || !configDir.canRead()) {
+                throw new IOException("给定的配置目录不可用");
+            }
+        } catch (Exception e) {
+            LoggerFactory.getLogger(this.getClass()).warn("初始化加载配置文件目录出现问题", e);
         }
     }
 
@@ -25,20 +31,22 @@ public class ConfigManager {
 
     public PassoverConfig getPassoverConfig() {
         try {
+            if (configDir == null) throw new Exception("未给定配置目录");
             Map<String, Object> passover = fetchYaml("passover");
             return new PassoverConfig(passover);
-        } catch (FileNotFoundException e) {
-            LoggerFactory.getLogger(this.getClass()).error("Cannot get config file, use default", e);
+        } catch (Exception e) {
+            LoggerFactory.getLogger(this.getClass()).warn("因故将使用默认的Passover配置", e);
             return new PassoverConfig();
         }
     }
 
     public RouterConfig getRouterConfig() {
         try {
+            if (configDir == null) throw new Exception("未给定配置目录");
             Map<String, Object> map = fetchYaml("router");
             return new RouterConfig(map);
-        } catch (FileNotFoundException e) {
-            LoggerFactory.getLogger(this.getClass()).error("Cannot get config file, use default", e);
+        } catch (Exception e) {
+            LoggerFactory.getLogger(this.getClass()).warn("因故将使用默认的Router配置", e);
             return null;
         }
     }
