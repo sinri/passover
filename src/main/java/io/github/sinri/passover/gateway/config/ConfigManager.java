@@ -1,7 +1,6 @@
 package io.github.sinri.passover.gateway.config;
 
 import io.vertx.core.logging.LoggerFactory;
-import jdk.internal.jline.internal.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -34,7 +33,6 @@ public class ConfigManager {
         }
     }
 
-    @Nullable
     public RouterConfig getRouterConfig() {
         try {
             Map<String, Object> map = fetchYaml("router");
