@@ -12,11 +12,7 @@ public class BasePassoverRouter {
         return "BasePassoverRouter";
     }
 
-    /**
-     * Analyze request and compute host, port, useSSL and getUri, etc
-     * Override this method if needed.
-     */
-    public PassoverRoute analyze(HttpServerRequest request) {
+    protected PassoverRoute createBasicRoute(HttpServerRequest request) {
         String[] hostParts = request.host().split(":");
         return new PassoverRoute()
                 .setDomain(hostParts[0])
@@ -27,6 +23,14 @@ public class BasePassoverRouter {
                 .setUri(request.uri())
                 .setShouldBeAbandoned(false)
                 .setShouldFilterWithBody(true);
+    }
+
+    /**
+     * Analyze request and compute host, port, useSSL and getUri, etc
+     * Override this method if needed.
+     */
+    public PassoverRoute analyze(HttpServerRequest request) {
+        return createBasicRoute(request);
     }
 
     protected PatternMatchingResult parsePathAgainstPattern(HttpServerRequest request, String regex) {

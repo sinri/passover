@@ -1,6 +1,7 @@
 package io.github.sinri.passover.gateway.config;
 
 import io.vertx.core.logging.LoggerFactory;
+import jdk.internal.jline.internal.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
@@ -30,6 +31,17 @@ public class ConfigManager {
         } catch (FileNotFoundException e) {
             LoggerFactory.getLogger(this.getClass()).error("Cannot get config file, use default", e);
             return new PassoverConfig();
+        }
+    }
+
+    @Nullable
+    public RouterConfig getRouterConfig() {
+        try {
+            Map<String, Object> map = fetchYaml("router");
+            return new RouterConfig(map);
+        } catch (FileNotFoundException e) {
+            LoggerFactory.getLogger(this.getClass()).error("Cannot get config file, use default", e);
+            return null;
         }
     }
 }

@@ -12,7 +12,22 @@ import java.lang.reflect.InvocationTargetException;
 public class VertxHttpGateway {
     private static Vertx vertx;
     private static ConfigManager configManager;
+    //private int localListenPort = 80;
+    private BasePassoverRouter router = new BasePassoverRouter();
     //private static int workerPoolSize = 40;
+
+    public VertxHttpGateway() {
+        try {
+            router = configManager.getPassoverConfig().createRouter();
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            LoggerFactory.getLogger(this.getClass()).warn("配置中设置的路由无法加载，将使用默认路由", e);
+            router = new BasePassoverRouter();
+        }
+    }
+
+    public static ConfigManager getConfigManager() {
+        return configManager;
+    }
 
     /**
      * 此方法应该先于VertxHttpGateway实例构造器执行
@@ -25,13 +40,6 @@ public class VertxHttpGateway {
         vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(configManager.getPassoverConfig().getWorkerPoolSize()));
 
         LoggerFactory.getLogger(VertxHttpGateway.class).info("initializeVertx done");
-    }
-
-    //private int localListenPort = 80;
-    private BasePassoverRouter router = new BasePassoverRouter();
-
-    public static Vertx getVertx() {
-        return vertx;
     }
 
 //    public BasePassoverRouter getRouter() {
@@ -60,13 +68,8 @@ public class VertxHttpGateway {
 //        return this;
 //    }
 
-    public VertxHttpGateway() {
-        try {
-            router = configManager.getPassoverConfig().createRouter();
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException | InstantiationException e) {
-            LoggerFactory.getLogger(this.getClass()).warn("配置中设置的路由无法加载，将使用默认路由", e);
-            router = new BasePassoverRouter();
-        }
+    public static Vertx getVertx() {
+        return vertx;
     }
 
     public void run() {
