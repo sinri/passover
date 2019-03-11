@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.sinri</groupId>
+    <groupId>io.github.sinri</groupId>
     <artifactId>passover</artifactId>
     <version>1.0-SNAPSHOT</version>
     <build>
@@ -56,5 +56,20 @@
         </dependency>
     </dependencies>
 
+    <!-- 配置远程发布到私服，mvn deploy -->
+    <distributionManagement>
+        <!-- 发布版私服仓库 -->
+        <repository>
+            <id>releases</id>
+            <name>Nexus Release Repository</name>
+            <url>http://nexus.leqeewechat.com/content/repositories/releases/</url>
+        </repository>
+        <!-- 快照版私服仓库 -->
+        <snapshotRepository>
+            <id>snapshots</id>
+            <name>Nexus Snapshot Repository</name>
+            <url>http://nexus.leqeewechat.com/content/repositories/snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
