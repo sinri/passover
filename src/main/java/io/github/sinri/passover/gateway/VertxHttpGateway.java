@@ -11,7 +11,7 @@ public class VertxHttpGateway {
     private static Vertx vertx;
     private static ConfigManager configManager;
     //private int localListenPort = 80;
-    private BasePassoverRouter router = new BasePassoverRouter();
+    private BasePassoverRouter router;
     //private static int workerPoolSize = 40;
 
     public VertxHttpGateway() {

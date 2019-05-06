@@ -54,15 +54,15 @@ public class RouterConfig {
             public boolean shouldFilterWithBody;
             public List<String> filterClasses;
 
-            public Route(Map<String, Object> route) {
-                domain = (String) route.getOrDefault("domain", null);
-                serviceHostForProxy = (String) route.getOrDefault("serviceHostForProxy", null);
-                servicePortForProxy = (int) route.getOrDefault("servicePortForProxy", 80);
-                useHttpsForProxy = (boolean) route.getOrDefault("useHttpsForProxy", false);
-                uri = (String) route.getOrDefault("uri", null);
-                shouldBeAbandoned = (boolean) route.getOrDefault("shouldBeAbandoned", false);
-                shouldFilterWithBody = (boolean) route.getOrDefault("shouldFilterWithBody", false);
-                filterClasses = (List<String>) route.getOrDefault("filterClasses", null);
+            public Route(Map<String, Object> routeMap) {
+                domain = (String) routeMap.getOrDefault("domain", null);
+                serviceHostForProxy = (String) routeMap.getOrDefault("serviceHostForProxy", null);
+                servicePortForProxy = (int) routeMap.getOrDefault("servicePortForProxy", 80);
+                useHttpsForProxy = (boolean) routeMap.getOrDefault("useHttpsForProxy", false);
+                uri = (String) routeMap.getOrDefault("uri", null);
+                shouldBeAbandoned = (boolean) routeMap.getOrDefault("shouldBeAbandoned", false);
+                shouldFilterWithBody = (boolean) routeMap.getOrDefault("shouldFilterWithBody", false);
+                filterClasses = (List<String>) routeMap.getOrDefault("filterClasses", null);
             }
         }
     }
