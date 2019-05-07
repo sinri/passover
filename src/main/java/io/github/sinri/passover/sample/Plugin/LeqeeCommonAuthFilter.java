@@ -51,37 +51,14 @@ public class LeqeeCommonAuthFilter extends AbstractRequestFilter {
         }).end();
     }
 
-    private boolean verifyLeqeeAAToken(String token) {
+    protected boolean verifyLeqeeAAToken(String token) {
         try {
             String urlString = "https://account-auth-v3.leqee.com/api/Login/apiVerifyToken";
             String bodyString = "token=" + token;
 
-            URL url = new URL(urlString);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
+            String response = postToApi(urlString, bodyString);
 
-            OutputStream os = conn.getOutputStream();
-            os.write(bodyString.getBytes(StandardCharsets.UTF_8));
-            os.flush();
-            os.close();
-
-            InputStream is;
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                is = conn.getInputStream();
-            } else {
-                is = conn.getErrorStream();
-            }
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
-
-            logger.info("Leqee AA 3 API Response: " + sb.toString());
-
-            JsonObject jsonObject = new JsonObject(sb.toString());
+            JsonObject jsonObject = new JsonObject(response);
             if (!jsonObject.getString("code", "FAILED").equals("OK")) {
                 //logger.error("Leqee AA 3 API FAIL MESSAGE: " + jsonObject.getString("data", "Unknown Error"));
                 feedback = "Leqee AA 3 API FAIL MESSAGE: " + jsonObject.getString("data", "Unknown Error");
@@ -103,5 +80,34 @@ public class LeqeeCommonAuthFilter extends AbstractRequestFilter {
             logger.error("verifyLeqeeAAToken failed", e);
             return false;
         }
+    }
+
+    protected String postToApi(String urlString, String bodyString) throws IOException {
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+
+        OutputStream os = conn.getOutputStream();
+        os.write(bodyString.getBytes(StandardCharsets.UTF_8));
+        os.flush();
+        os.close();
+
+        InputStream is;
+        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            is = conn.getInputStream();
+        } else {
+            is = conn.getErrorStream();
+        }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+            sb.append(line);
+        }
+
+        logger.info("Leqee AA 3 API Response: " + sb.toString());
+
+        return sb.toString();
     }
 }

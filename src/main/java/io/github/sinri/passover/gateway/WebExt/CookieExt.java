@@ -42,8 +42,8 @@ public class CookieExt {
         return parsedCookieMap.get(name);
     }
 
-    public CookieExt setResponseCookie(String name, DefaultCookie value) {
-        respondCookieMap.put(name, value);
+    public CookieExt setResponseCookie(DefaultCookie cookie) {
+        respondCookieMap.put(cookie.name(), cookie);
         return this;
     }
 
