@@ -77,7 +77,12 @@ public class VertxHttpGateway {
         // 网关服务器处理请求
         gatewayServer.requestHandler(request -> {
             // 创建网关请求封装类，根据路由设置或者判断filters数量，检查是否需要filters
-            new GatewayRequest(request, router).filterAndProxy();
+            try {
+                new GatewayRequest(request, router).filterAndProxy();
+            } catch (Exception e) {
+                //e.printStackTrace();
+                LoggerFactory.getLogger(this.getClass()).error("大势已去。" + e.getMessage());
+            }
         }).listen(configManager.getPassoverConfig().getLocalListenPort());
 
         LoggerFactory.getLogger(this.getClass()).info("新的网关HTTP服务已经站立在服务器上。" + configManager.getPassoverConfig().toString());

@@ -19,8 +19,8 @@ public class PassoverConfig {
     }
 
     public PassoverConfig(Map<String, Object> map) {
-        workerPoolSize = Integer.parseInt((String) map.getOrDefault("workerPoolSize", "50"));
-        localListenPort = Integer.parseInt((String) map.getOrDefault("localListenPort", "8000"));
+        workerPoolSize = (Integer) map.getOrDefault("workerPoolSize", "50");
+        localListenPort = (Integer) map.getOrDefault("localListenPort", "8000");
         routerClassName = (String) map.getOrDefault("routerClass", "io.github.sinri.passover.gateway.BasePassoverRouter");
         makeRouter();
     }

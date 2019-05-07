@@ -21,8 +21,11 @@ public class ConfigDriveRouter extends BasePassoverRouter {
     }
 
     @Override
-    public PassoverRoute analyze(HttpServerRequest request) {
-        if (routerConfig == null) return super.analyze(request);
+    public PassoverRoute analyze(HttpServerRequest request) throws Exception {
+        if (routerConfig == null) {
+            LoggerFactory.getLogger(getClass()).warn("tried analyze but no router config found");
+            return super.analyze(request);
+        }
 
         PassoverRoute route = createBasicRoute(request);
 
@@ -51,10 +54,16 @@ public class ConfigDriveRouter extends BasePassoverRouter {
                     });
                 }
 
+                LoggerFactory.getLogger(getClass()).info("Route found: [" + (i + 1) + "] -> " + rule.toString());
+
                 return route;
             }
         }
 
-        return route;
+        //LoggerFactory.getLogger(getClass()).warn("No Route Matched. Use default route.");
+        //return route;
+
+        LoggerFactory.getLogger(getClass()).error("No Route Matched. Sine, ikyouto!");
+        throw new Exception("不合法的访问请求，将会被扔掉");
     }
 }

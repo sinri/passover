@@ -27,7 +27,7 @@ public class GatewayRequest {
     private Map<String, Object> filterShareDataMap;
     private CookieExt cookieExt;
 
-    GatewayRequest(HttpServerRequest request, BasePassoverRouter router) {
+    GatewayRequest(HttpServerRequest request, BasePassoverRouter router) throws Exception {
         //this.vertx = VertxHttpGateway.getVertx();
 
         this.request = request;
@@ -110,7 +110,7 @@ public class GatewayRequest {
                 .end();
     }
 
-    private void computeRoute() {
+    private void computeRoute() throws Exception {
         // 根据设定的路由插件计算路由
         logger.info("网关原始请求中的关键字段: " + request.host() + " " + request.remoteAddress().port() + " " + request.isSSL() + " " + request.uri());
         route = router.analyze(request);

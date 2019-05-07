@@ -64,6 +64,15 @@ public class RouterConfig {
                 shouldFilterWithBody = (boolean) routeMap.getOrDefault("shouldFilterWithBody", false);
                 filterClasses = (List<String>) routeMap.getOrDefault("filterClasses", null);
             }
+
+            @Override
+            public String toString() {
+                return "Route of [" + domain + "|" + uri + "] targeting to [" + serviceHostForProxy + ":" + servicePortForProxy + "]"
+                        + " shouldBeAbandoned=" + shouldBeAbandoned
+                        + " shouldFilterWithBody=" + shouldFilterWithBody;
+            }
         }
+
+
     }
 }

@@ -13,7 +13,7 @@ public class FirstRouter extends BasePassoverRouter {
     }
 
     @Override
-    public PassoverRoute analyze(HttpServerRequest request) {
+    public PassoverRoute analyze(HttpServerRequest request) throws Exception {
         PassoverRoute route = super.analyze(request);
         if (route.getServiceHostForProxy().equals("testoctet.leqee.com")) {
             route.setServiceHostForProxy("10.29.193.97").setUseHttpsForProxy(false);

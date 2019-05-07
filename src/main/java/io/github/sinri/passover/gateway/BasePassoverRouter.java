@@ -19,7 +19,7 @@ public class BasePassoverRouter {
                 .setServiceHostForProxy(hostParts[0])
                 .setServicePortForProxy(request.isSSL() ? 443 : 80)
                 .setUseHttpsForProxy(request.isSSL())
-                .setUseHttpsForVisitor(request.isSSL() || request.getHeader("X-Forwarded-Proto").equalsIgnoreCase("https"))
+                .setUseHttpsForVisitor(request.isSSL() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto")))
                 .setUri(request.uri())
                 .setShouldBeAbandoned(false)
                 .setShouldFilterWithBody(true);
@@ -29,7 +29,7 @@ public class BasePassoverRouter {
      * Analyze request and compute host, port, useSSL and getUri, etc
      * Override this method if needed.
      */
-    public PassoverRoute analyze(HttpServerRequest request) {
+    public PassoverRoute analyze(HttpServerRequest request) throws Exception {
         return createBasicRoute(request);
     }
 
