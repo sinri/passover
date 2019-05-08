@@ -28,6 +28,9 @@ public class BasePassoverRouter {
     /**
      * Analyze request and compute host, port, useSSL and getUri, etc
      * Override this method if needed.
+     * @param request 原始请求
+     * @throws Exception Something wrong
+     * @return PassoverRoute 新建的route
      */
     public PassoverRoute analyze(HttpServerRequest request) throws Exception {
         return createBasicRoute(request);

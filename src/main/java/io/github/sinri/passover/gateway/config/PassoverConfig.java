@@ -9,6 +9,16 @@ public class PassoverConfig {
     protected Integer workerPoolSize;
     protected Integer localListenPort;
     protected String routerClassName;
+
+    public String getCasServiceName() {
+        return casServiceName;
+    }
+
+    public void setCasServiceName(String casServiceName) {
+        this.casServiceName = casServiceName;
+    }
+
+    protected String casServiceName;
     private BasePassoverRouter router;
 
     public PassoverConfig() {
@@ -22,6 +32,7 @@ public class PassoverConfig {
         workerPoolSize = (Integer) map.getOrDefault("workerPoolSize", "50");
         localListenPort = (Integer) map.getOrDefault("localListenPort", "8000");
         routerClassName = (String) map.getOrDefault("routerClass", "io.github.sinri.passover.gateway.BasePassoverRouter");
+        casServiceName = (String) map.getOrDefault("casServiceName", "anonymous-passover");
         makeRouter();
     }
 

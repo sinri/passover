@@ -25,7 +25,7 @@ public class VertxHttpGateway {
     /**
      * 此方法应该先于VertxHttpGateway实例构造器执行
      *
-     * @param configManager
+     * @param configManager the universal config manager
      */
     public static void initializeVertx(ConfigManager configManager) {
         // 建立Vertx实例

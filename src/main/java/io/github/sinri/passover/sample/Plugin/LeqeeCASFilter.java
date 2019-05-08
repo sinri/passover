@@ -1,13 +1,16 @@
 package io.github.sinri.passover.sample.Plugin;
 
 import io.github.sinri.passover.gateway.GatewayRequest;
+import io.github.sinri.passover.gateway.VertxHttpGateway;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.vertx.core.json.JsonObject;
 
-public abstract class LeqeeCASFilter extends LeqeeCommonAuthFilter {
+public class LeqeeCASFilter extends LeqeeCommonAuthFilter {
     private String aaToken;
 
-    abstract protected String getAaTPCode();
+    protected String getAaTPCode() {
+        return VertxHttpGateway.getConfigManager().getPassoverConfig().getCasServiceName();
+    }
 
     public LeqeeCASFilter(GatewayRequest request) {
         super(request);
