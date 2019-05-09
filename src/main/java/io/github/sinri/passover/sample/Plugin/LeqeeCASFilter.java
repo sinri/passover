@@ -1,15 +1,18 @@
 package io.github.sinri.passover.sample.Plugin;
 
 import io.github.sinri.passover.gateway.GatewayRequest;
-import io.github.sinri.passover.gateway.VertxHttpGateway;
 import io.netty.handler.codec.http.cookie.DefaultCookie;
 import io.vertx.core.json.JsonObject;
 
+import java.util.Map;
+
 public class LeqeeCASFilter extends LeqeeCommonAuthFilter {
     private String aaToken;
+    private String aaTPCode;
 
     protected String getAaTPCode() {
-        return VertxHttpGateway.getConfigManager().getPassoverConfig().getCasServiceName();
+//        return VertxHttpGateway.getConfigManager().getPassoverConfig().getCasServiceName();
+        return aaTPCode;
     }
 
     public LeqeeCASFilter(GatewayRequest request) {
@@ -19,6 +22,12 @@ public class LeqeeCASFilter extends LeqeeCommonAuthFilter {
     @Override
     public String getFilterName() {
         return "LeqeeCASFilter";
+    }
+
+    @Override
+    public void loadConfig(Map<String, Object> config) {
+        super.loadConfig(config);
+        aaTPCode = (String) config.getOrDefault("aa_tp_code", "anonymous_tp_code");
     }
 
     @Override

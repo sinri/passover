@@ -10,6 +10,13 @@ import io.vertx.core.logging.LoggerFactory;
 import java.util.Arrays;
 
 public class Passover {
+    /**
+     * 作为可运行JAR包在命令行启动，运行如
+     * java -jar passover.jar -c /path/to/config-dir
+     * 目前只需要一个参数，也就是配置目录
+     *
+     * @param args 命令行参数
+     */
     public static void main(String[] args) {
         try {
             CLI cli = CLI.create("Passover")

@@ -4,6 +4,8 @@ import io.vertx.core.buffer.Buffer;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
+import java.util.Map;
+
 abstract public class AbstractRequestFilter {
 
     protected GatewayRequest request;
@@ -20,6 +22,11 @@ abstract public class AbstractRequestFilter {
     }
 
     abstract public String getFilterName();
+
+    public void loadConfig(Map<String, Object> config) {
+        // actually do nothing and this is optionally overrode
+        this.logger.info("load config with " + config);
+    }
 
     /**
      * Let the request be filtered.
@@ -63,5 +70,4 @@ abstract public class AbstractRequestFilter {
     protected void dealFilterDeny() throws Exception {
         request.abandonIncomingRequest(AbandonReason.AbandonByFilter(new Exception("Filter " + getFilterName() + " 拒绝了访问，使用了默认的Abandon策略")));
     }
-
 }

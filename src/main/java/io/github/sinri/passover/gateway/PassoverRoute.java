@@ -1,6 +1,9 @@
 package io.github.sinri.passover.gateway;
 
+import io.github.sinri.passover.gateway.config.RequestFilterFactory;
+
 import java.util.ArrayList;
+import java.util.List;
 
 public class PassoverRoute {
     private String domain;
@@ -11,7 +14,23 @@ public class PassoverRoute {
     private String uri;
     private boolean shouldBeAbandoned;
     private boolean shouldFilterWithBody;
-    private ArrayList<Class<? extends AbstractRequestFilter>> filterClasses = new ArrayList<>();
+
+    //private ArrayList<Class<? extends AbstractRequestFilter>> filterClasses = new ArrayList<>();
+
+    public List<RequestFilterFactory> getRequestFilterFactories() {
+        return requestFilterFactories;
+    }
+
+    public void setRequestFilterFactories(List<RequestFilterFactory> requestFilterFactories) {
+        this.requestFilterFactories = requestFilterFactories;
+    }
+
+    public PassoverRoute appendRequestFilterFactory(RequestFilterFactory factory) {
+        this.requestFilterFactories.add(factory);
+        return this;
+    }
+
+    private List<RequestFilterFactory> requestFilterFactories = new ArrayList<>();
 
     public String getDomain() {
         return domain;
@@ -31,22 +50,22 @@ public class PassoverRoute {
         return this;
     }
 
-    public ArrayList<Class<? extends AbstractRequestFilter>> getFilterClasses() {
-        return filterClasses;
-    }
-
-    public PassoverRoute setFilterClasses(ArrayList<Class<? extends AbstractRequestFilter>> filterClasses) {
-        this.filterClasses = filterClasses;
-        return this;
-    }
-
-    public PassoverRoute appendFilterClass(Class<? extends AbstractRequestFilter> filterClass) {
-        this.filterClasses.add(filterClass);
-        return this;
-    }
+//    public ArrayList<Class<? extends AbstractRequestFilter>> getFilterClasses() {
+//        return filterClasses;
+//    }
+//
+//    public PassoverRoute setFilterClasses(ArrayList<Class<? extends AbstractRequestFilter>> filterClasses) {
+//        this.filterClasses = filterClasses;
+//        return this;
+//    }
+//
+//    public PassoverRoute appendFilterClass(Class<? extends AbstractRequestFilter> filterClass) {
+//        this.filterClasses.add(filterClass);
+//        return this;
+//    }
 
     public boolean isShouldBeFiltered() {
-        return filterClasses != null && !filterClasses.isEmpty();
+        return requestFilterFactories != null && !requestFilterFactories.isEmpty();
     }
 
     public boolean isShouldBeAbandoned() {

@@ -1,6 +1,7 @@
 package io.github.sinri.passover.gateway;
 
 import io.github.sinri.passover.gateway.WebExt.CookieExt;
+import io.github.sinri.passover.gateway.config.RequestFilterFactory;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
@@ -10,8 +11,8 @@ import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 import io.vertx.core.streams.Pump;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -99,7 +100,7 @@ public class GatewayRequest {
     }
 
     public void abandonIncomingRequest(AbandonReason reason) {
-        // 是否需要像SLB一样设置一个特殊的报错回复报文，比现在直接关闭更友好一些。
+        // 是否需要像SLB一样设置一个特殊的报错回复报文，比直接关闭更友好一些。
         request.response()
                 .setStatusCode(reason.code)
                 .setStatusMessage(reason.message)
@@ -183,16 +184,13 @@ public class GatewayRequest {
      */
     private boolean applyFilters() throws Exception {
         // 如果有Filters那就一个个过，找不到filter或者filter失败的话就会抛出异常
-        ArrayList<Class<? extends AbstractRequestFilter>> filterClassList = route.getFilterClasses();
-        if (filterClassList != null) {
-            for (int i = 0; i < filterClassList.size(); i++) {
-                Class<? extends AbstractRequestFilter> filterClass = filterClassList.get(i);
-
-                logger.info("第" + i + "个Filter " + filterClass + " 到达门口");
-
-                AbstractRequestFilter requestFilter = filterClass.getDeclaredConstructor(GatewayRequest.class).newInstance(this);
+        List<RequestFilterFactory> requestFilterFactories = route.getRequestFilterFactories();
+        if (requestFilterFactories != null) {
+            for (int i = 0; i < requestFilterFactories.size(); i++) {
+                logger.info("第" + i + "个Filter " + requestFilterFactories.get(i).className + " 到达门口");
+                AbstractRequestFilter requestFilter = requestFilterFactories.get(i).buildInstanceWithGatewayRequest(this);
                 if (!requestFilter.filter(bodyBuffer)) {
-                    logger.error("第" + i + "个Filter " + filterClass + " 未发现门框和门楣上有血，已进门击杀，准备走人。 Feedback: " + requestFilter.getFeedback());
+                    logger.error("第" + i + "个Filter " + requestFilterFactories.get(i).className + " 未发现门框和门楣上有血，已进门击杀，准备走人。 Feedback: " + requestFilter.getFeedback());
                     return false;
                 }
             }

@@ -7,12 +7,13 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerOptions;
 import io.vertx.core.logging.LoggerFactory;
 
+/**
+ * 网关的核心工作框架，VERTX的承载架子
+ */
 public class VertxHttpGateway {
     private static Vertx vertx;
     private static ConfigManager configManager;
-    //private int localListenPort = 80;
     private BasePassoverRouter router;
-    //private static int workerPoolSize = 40;
 
     public VertxHttpGateway() {
         router = configManager.getPassoverConfig().getRouter();
@@ -23,48 +24,25 @@ public class VertxHttpGateway {
     }
 
     /**
-     * 此方法应该先于VertxHttpGateway实例构造器执行
+     * 此方法应该先于VertxHttpGateway实例构造器执行，
+     * 以初始化配置管理器。
      *
      * @param configManager the universal config manager
      */
     public static void initializeVertx(ConfigManager configManager) {
-        // 建立Vertx实例
         VertxHttpGateway.configManager = configManager;
         vertx = Vertx.vertx(new VertxOptions().setWorkerPoolSize(configManager.getPassoverConfig().getWorkerPoolSize()));
 
         LoggerFactory.getLogger(VertxHttpGateway.class).info("initializeVertx done");
     }
 
-//    public BasePassoverRouter getRouter() {
-//        return router;
-//    }
-//
-//    public VertxHttpGateway setRouter(BasePassoverRouter router) {
-//        this.router = router;
-//        return this;
-//    }
-
-//    public static int getWorkerPoolSize() {
-//        return workerPoolSize;
-//    }
-//
-//    public static void setWorkerPoolSize(int workerPoolSize) {
-//        VertxHttpGateway.workerPoolSize = workerPoolSize;
-//    }
-
-//    public int getLocalListenPort() {
-//        return localListenPort;
-//    }
-//
-//    public VertxHttpGateway setLocalListenPort(int localListenPort) {
-//        this.localListenPort = localListenPort;
-//        return this;
-//    }
-
     public static Vertx getVertx() {
         return vertx;
     }
 
+    /**
+     * 网关的标准运行入口，以配置选项执行网关
+     */
     public void run() {
         // 建立网关服务器
         HttpServerOptions options = new HttpServerOptions().setLogActivity(true);

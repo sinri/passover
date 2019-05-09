@@ -41,17 +41,12 @@ public class ConfigDriveRouter extends BasePassoverRouter {
                     route.setServiceHostForProxy(rule.route.serviceHostForProxy);
                 route.setServicePortForProxy(rule.route.servicePortForProxy);
                 route.setUseHttpsForProxy(rule.route.useHttpsForProxy);
+                route.setUseHttpsForVisitor(rule.route.useHttpsForVisitor);
                 if (rule.route.uri != null) route.setUri(rule.route.uri);
                 route.setShouldBeAbandoned(rule.route.shouldBeAbandoned);
                 route.setShouldFilterWithBody(rule.route.shouldFilterWithBody);
-                if (rule.route.filterClasses != null) {
-                    rule.route.filterClasses.forEach(className -> {
-                        try {
-                            route.appendFilterClass(Class.forName(className).asSubclass(AbstractRequestFilter.class));
-                        } catch (ClassNotFoundException e) {
-                            LoggerFactory.getLogger(this.getClass()).error("Route加载Filter类 " + className + " 不正确，此Filter将被无视", e);
-                        }
-                    });
+                if (rule.route.requestFilterFactories != null) {
+                    route.setRequestFilterFactories(rule.route.requestFilterFactories);
                 }
 
                 LoggerFactory.getLogger(getClass()).info("Route found: [" + (i + 1) + "] -> " + rule.toString());

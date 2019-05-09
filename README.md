@@ -1,12 +1,71 @@
 # Passover
 
-为鲵搞的简单的网关系统。
+A simple web gateway based on Vert.X 3.
 
-这个版本基于Vertx。
+Let Vert.x be the HTTP server, when requests come, filter them and send to configured target server, and pass the responses to clients.
 
-原理是用Vert.x启动HttpServer，收到HTTP(S)请求时（处理一波之后）重新包装成一个请求发送给真实的服务地址。
+## Basic Usage
 
-## REQUIREMENTS
+### Run as daemon
+
+You need
+
+1. the packaged jar file;
+2. a directory containing config files
+    1. passover.yml : the general config;
+    2. router.yml : define your routes, if you declare to use ConfigDriveRouter in passover.yml
+
+and run as the following.
+
+```bash
+java -jar passover.jar -c /path/to/config-dir
+```
+
+Sample of passover.yml
+
+```yaml
+# Passover
+# How many worker threads you need for passover?
+workerPoolSize: 40
+# Which port you want to listen on local environment.
+localListenPort: 8000
+# Define your router, which should be an instance of BasePassoverRouter or its extension.
+routerClass: io.github.sinri.passover.gateway.ConfigDriveRouter
+# If you want use CAS to check incoming requests, you have to register the service name.
+casServiceName: oms-xxl-passover
+```
+
+Sample of router.yml
+
+```yaml
+# ConfigDriveRouter
+routerName: DemoRouter
+# Rules are checked when a request comes by order
+rules:
+  conditions:
+    host: www.sample.com
+    path: .*
+  route:
+    # domain is optional
+    # serviceHostForProxy and servicePortForProxy should be fit for passover machine to connect target, 
+    # and if useHttpsForProxy then servicePortForProxy might ought to be 443
+    serviceHostForProxy: 127.0.0.1
+    servicePortForProxy: 8080
+    useHttpsForProxy: false
+    # Use this parameter to decide if the requests match this conditions should be abandoned
+    shouldBeAbandoned: false
+    # Use this parameter to inform the framework that if there were any filters need parse body, such as those contain token inside body
+    shouldFilterWithBody: false
+    # The list of filter classes, use full class path with namespace
+    filterClasses:
+      # A sample is Leqee CAS
+      -
+        class: io.github.sinri.passover.sample.Plugin.LeqeeCASFilter
+        config:
+          aa_tp_code: oms-xxl-passover
+```
+
+---
 
 基本的实现
 

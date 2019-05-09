@@ -47,22 +47,31 @@ public class RouterConfig {
             public String domain;
             public String serviceHostForProxy;
             public int servicePortForProxy;
-            public boolean useHttpsForProxy;
-            //public boolean useHttpsForVisitor;// neglect
+            public boolean useHttpsForProxy; // default http
+            public boolean useHttpsForVisitor;// default https
             public String uri;
             public boolean shouldBeAbandoned;
             public boolean shouldFilterWithBody;
-            public List<String> filterClasses;
+            public List<RequestFilterFactory> requestFilterFactories;
 
             public Route(Map<String, Object> routeMap) {
                 domain = (String) routeMap.getOrDefault("domain", null);
                 serviceHostForProxy = (String) routeMap.getOrDefault("serviceHostForProxy", null);
                 servicePortForProxy = (int) routeMap.getOrDefault("servicePortForProxy", 80);
                 useHttpsForProxy = (boolean) routeMap.getOrDefault("useHttpsForProxy", false);
+                useHttpsForVisitor = (boolean) routeMap.getOrDefault("useHttpsForVisitor", true);
                 uri = (String) routeMap.getOrDefault("uri", null);
                 shouldBeAbandoned = (boolean) routeMap.getOrDefault("shouldBeAbandoned", false);
                 shouldFilterWithBody = (boolean) routeMap.getOrDefault("shouldFilterWithBody", false);
-                filterClasses = (List<String>) routeMap.getOrDefault("filterClasses", null);
+                //filterClasses = (List<RequestFilterFactory>) routeMap.getOrDefault("filterClasses", null);
+                requestFilterFactories = new ArrayList<>();
+                List<Object> rawFilterClasses = (List<Object>) routeMap.getOrDefault("filterClasses", null);
+                if (rawFilterClasses != null) {
+                    for (Object item : rawFilterClasses) {
+                        RequestFilterFactory rff = new RequestFilterFactory((Map<String, Object>) item);
+                        requestFilterFactories.add(rff);
+                    }
+                }
             }
 
             @Override
