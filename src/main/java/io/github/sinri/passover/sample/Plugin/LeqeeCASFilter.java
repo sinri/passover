@@ -80,7 +80,7 @@ public class LeqeeCASFilter extends LeqeeCommonAuthFilter {
     }
 
     @Override
-    protected void dealFilterDeny() throws Exception {
+    protected void dealFilterDeny() {
         // 这里要出一个登录页啊啊啊啊
         logger.info("姑且放一个302去登录页吧");
         request.getRequest().response().setStatusCode(302).setStatusMessage("Please Login First");
@@ -120,6 +120,8 @@ public class LeqeeCASFilter extends LeqeeCommonAuthFilter {
 
             aaToken = attributes.getString("aa_token");
             //String aa_tp_code="oms-xxl-passover";
+            // note: this is designed for PHP 5.x to receive all the integer through PDO as string.
+            // todo in 7.x, they would be integer
             String aa_user_id = attributes.getString("user_id");
 
             feedback = "Leqee AA 3 API shows this one " + aa_user_id + " came through TP " + getAaTPCode() + " and aa token is " + aaToken;
