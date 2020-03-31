@@ -42,27 +42,28 @@ Sample of router.yml
 routerName: DemoRouter
 # Rules are checked when a request comes by order
 rules:
-  conditions:
-    host: www.sample.com
-    path: .*
-  route:
-    # domain is optional
-    # serviceHostForProxy and servicePortForProxy should be fit for passover machine to connect target, 
-    # and if useHttpsForProxy then servicePortForProxy might ought to be 443
-    serviceHostForProxy: 127.0.0.1
-    servicePortForProxy: 8080
-    useHttpsForProxy: false
-    # Use this parameter to decide if the requests match this conditions should be abandoned
-    shouldBeAbandoned: false
-    # Use this parameter to inform the framework that if there were any filters need parse body, such as those contain token inside body
-    shouldFilterWithBody: false
-    # The list of filter classes, use full class path with namespace
-    filterClasses:
-      # A sample is Leqee CAS
-      -
-        class: io.github.sinri.passover.sample.Plugin.LeqeeCASFilter
-        config:
-          aa_tp_code: oms-xxl-passover
+  -
+    conditions:
+      host: www.sample.com
+      path: .*
+    route:
+      # domain is optional
+      # serviceHostForProxy and servicePortForProxy should be fit for passover machine to connect target, 
+      # and if useHttpsForProxy then servicePortForProxy might ought to be 443
+      serviceHostForProxy: 127.0.0.1
+      servicePortForProxy: 8080
+      useHttpsForProxy: false
+      # Use this parameter to decide if the requests match this conditions should be abandoned
+      shouldBeAbandoned: false
+      # Use this parameter to inform the framework that if there were any filters need parse body, such as those contain token inside body
+      shouldFilterWithBody: false
+      # The list of filter classes, use full class path with namespace
+      filterClasses:
+        # A sample is Leqee CAS
+        -
+          class: io.github.sinri.passover.sample.Plugin.LeqeeCASFilter
+          config:
+            aa_tp_code: oms-xxl-passover
 ```
 
 ---
