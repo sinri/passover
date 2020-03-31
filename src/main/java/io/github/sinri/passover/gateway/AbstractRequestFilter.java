@@ -11,6 +11,10 @@ abstract public class AbstractRequestFilter {
     protected GatewayRequest request;
     protected String feedback;
     protected Logger logger;
+    /**
+     * @since 1.0.5
+     */
+    protected Buffer bodyBuffer;
 
     public AbstractRequestFilter(GatewayRequest request) {
         this.request = request;
@@ -43,6 +47,7 @@ abstract public class AbstractRequestFilter {
      * @throws Exception 如果出现了不可控的异常则扔异常去被abandoned
      */
     final boolean filter(Buffer bodyBuffer) throws Exception {
+        this.bodyBuffer = bodyBuffer;
         feedback = "Not Checked Yet";
         // 如果出现了不可控情况，直接在这里扔异常
         boolean pass = checkPassable();

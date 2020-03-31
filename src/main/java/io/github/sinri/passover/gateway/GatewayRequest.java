@@ -128,20 +128,19 @@ public class GatewayRequest {
         if (route.isShouldBeFiltered()) {
             if (!route.isShouldFilterWithBody()) {
                 logger.info("开始执行Filters，根据设定，无需Body");
-                // 执行Filters
+                // 执行Filters并在成功后proxy
                 try {
-                    if (applyFilters()) {
-                        logger.info("已通过全部Filters无Body校验，开始转发到服务端");
-                    } else {
-                        return;
+                    if (!applyFilters()) {
+                        // 总之Filter们里有一个挂了，报错里面打了这里不打了
+                        throw new Exception("被某个Filter拒绝访问了");
                     }
+                    logger.info("已通过全部Filters无Body校验，开始转发到服务端");
+                    // Filters全部通过之后就可以直接proxy了
+                    proxyRequestWithoutFullBody();
                 } catch (Exception applyFilterException) {
                     logger.error("在Filters中出现异常", applyFilterException);
                     abandonIncomingRequest(AbandonReason.AbandonByFilter(applyFilterException));
-                    return;
                 }
-                // Filters全部通过之后就可以直接proxy了
-                proxyRequestWithoutFullBody();
             } else {
                 // 囤积请求本体
                 request.handler(buffer -> {
@@ -154,19 +153,18 @@ public class GatewayRequest {
                 request.endHandler(event -> {
                     logger.info("网关请求Body囤积完毕，开始执行Filters");
 
-                    // 执行Filters
+                    // 执行Filters并在成功后proxy
                     try {
-                        if (applyFilters()) {
-                            logger.info("已通过全部Filters含Body校验，开始转发到服务端");
-                        } else {
-                            return;
+                        if (!applyFilters()) {
+                            // 总之Filter们里有一个挂了，报错里面打了这里不打了
+                            throw new Exception("被某个Filter拒绝访问了");
                         }
+                        logger.info("已通过全部Filters含Body校验，开始转发到服务端");
+                        proxyRequestWithFullBody();
                     } catch (Exception applyFilterException) {
                         logger.error("在Filters中出现异常", applyFilterException);
                         abandonIncomingRequest(AbandonReason.AbandonByFilter(applyFilterException));
-                        return;
                     }
-                    proxyRequestWithFullBody();
                 });
             }
         } else {
