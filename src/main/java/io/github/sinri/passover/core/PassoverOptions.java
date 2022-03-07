@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PassoverOptions extends KeelOptions {
-    // options for passover and vertx, with prefix "passover"
     private int workerPoolSize;
     private int localListenPort;
     private String routerClass;
