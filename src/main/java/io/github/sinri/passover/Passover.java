@@ -1,49 +1,55 @@
 package io.github.sinri.passover;
 
-import io.github.sinri.passover.gateway.VertxHttpGateway;
-import io.github.sinri.passover.gateway.config.ConfigManager;
-import io.vertx.core.cli.CLI;
-import io.vertx.core.cli.CommandLine;
-import io.vertx.core.cli.TypedOption;
-import io.vertx.core.logging.LoggerFactory;
+import io.github.sinri.keel.Keel;
+import io.github.sinri.keel.core.logger.KeelLogger;
+import io.github.sinri.keel.core.properties.KeelOptions;
+import io.github.sinri.passover.core.PassoverOptions;
+import io.github.sinri.passover.core.RouteOptions;
+import io.github.sinri.passover.server.PassoverServer;
+import io.vertx.core.VertxOptions;
 
-import java.util.Arrays;
+import java.io.IOException;
+import java.util.List;
 
 public class Passover {
-    /**
-     * 作为可运行JAR包在命令行启动，运行如
-     * java -jar passover.jar -c /path/to/config-dir
-     * 目前只需要一个参数，也就是配置目录
-     *
-     * @param args 命令行参数
-     */
-    public static void main(String[] args) {
-        try {
-            CLI cli = CLI.create("Passover")
-                    .setSummary("神秘的HTTP网关")
-                    .addOption(
-                            new TypedOption<String>()
-                                    .setLongName("config-dir")
-                                    .setShortName("c")
-                                    .setDescription("给定配置文件夹，否则使用默认配置。")
-                                    .setRequired(false)
-                                    .setType(String.class)
-                    );
-            CommandLine commandLine = cli.parse(Arrays.asList(args));
-            if (!commandLine.isValid() && commandLine.isAskingForHelp()) {
-                StringBuilder builder = new StringBuilder();
-                cli.usage(builder);
-                System.err.println(builder.toString());
-                System.exit(1);
-            }
+    private static PassoverOptions passoverOptions;
 
-            String configDir = commandLine.getOptionValue("config-dir");
-            VertxHttpGateway.initializeVertx(new ConfigManager(configDir));
-        } catch (Exception e) {
-            LoggerFactory.getLogger(Passover.class).error("Passover 初始化失败", e);
-            System.exit(2);
+    public static void main(String[] args) {
+        Keel.loadPropertiesFromFile("keel.properties");
+        Keel.initializeVertx(new VertxOptions());
+
+        // load passover config in yaml
+        try {
+            passoverOptions = KeelOptions.loadWithYamlFilePath("config.yml", PassoverOptions.class);
+            testConfigReading();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Keel.getVertx().close();
         }
 
-        new VertxHttpGateway().run();
+        // start server
+        new PassoverServer().serve();
+
+    }
+
+    public static PassoverOptions getPassoverOptions() {
+        return passoverOptions;
+    }
+
+    protected static void testConfigReading() {
+        KeelLogger logger = Keel.outputLogger("main");
+        logger.info("local listen port: " + passoverOptions.getLocalListenPort());
+
+        List<RouteOptions> routeOptions = passoverOptions.getRoutes();
+        for (var routeOption : routeOptions) {
+            logger.info("route - " + routeOption.getRouteName());
+            logger.info("\taccept: " + routeOption.getAcceptRequest().getHost() + " with " + routeOption.getAcceptRequest().getPath());
+            logger.info("\tmethod: " + routeOption.getMethod());
+            logger.info("\trelay: " + routeOption.getRelay().getHost() + ":" + routeOption.getRelay().getPort());
+            logger.info("\tfilters: " + routeOption.getRelay().getFilters().size());
+            for (var filter : routeOption.getRelay().getFilters()) {
+                logger.info("\t\tfilter " + filter.getFilterName() + " with " + filter.getFilterParams());
+            }
+        }
     }
 }
