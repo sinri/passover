@@ -4,10 +4,8 @@
 workerPoolSize: 40
 ## Which port you want to listen on local environment.
 localListenPort: 8000
-## If you want to use CAS to check incoming requests, you have to register the service name.
-#casServiceName: ?-passover
 
-# routes defined for router
+# routes defined for routes
 routes:
   - routeName: router1
     acceptRequest:

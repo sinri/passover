@@ -16,17 +16,17 @@ public class Passover {
     private static PassoverOptions passoverOptions;
 
     public static void main(String[] args) {
-        Keel.loadPropertiesFromFile("keel.properties");
-        Keel.initializeVertx(new VertxOptions());
-
         // load passover config in yaml
         try {
             passoverOptions = KeelOptions.loadWithYamlFilePath("config.yml", PassoverOptions.class);
             configPreview();
         } catch (IOException e) {
             e.printStackTrace();
-            Keel.getVertx().close();
+            return;
         }
+
+        Keel.loadPropertiesFromFile("keel.properties");
+        Keel.initializeVertx(new VertxOptions().setWorkerPoolSize(passoverOptions.getWorkerPoolSize()));
 
         // start server
         new PassoverServer().serve();
