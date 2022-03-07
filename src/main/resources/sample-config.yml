@@ -1,0 +1,29 @@
+# passover related
+
+## How many worker threads you need for passover?
+workerPoolSize: 40
+## Which port you want to listen on local environment.
+localListenPort: 8000
+## Define your router, which should be an instance of BasePassoverRouter or its extension.
+routerClass: io.github.sinri.passover.?
+## If you want to use CAS to check incoming requests, you have to register the service name.
+casServiceName: ?-passover
+
+# routes defined for router
+routes:
+  - routeName: router1
+    acceptRequest:
+      host: rahab.leqee.com
+      path: .*
+    method: RELAY
+    relay:
+      host: 127.0.0.1
+      port: 14000
+      useHttps: NO
+      filtersUseBody: NO
+      filters:
+        - filterName: SimplePasswordFilter
+          filterParams:
+            - token
+            - secret
+
