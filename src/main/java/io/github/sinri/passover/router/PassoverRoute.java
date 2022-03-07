@@ -18,8 +18,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class PassoverRoute extends KeelOptions {
     // RELAY or ABANDON
-    private final static String METHOD_RELAY = "RELAY";
-    private final static String METHOD_ABANDON = "ABANDON";
+    public final static String METHOD_RELAY = "RELAY";
+    public final static String METHOD_ABANDON = "ABANDON";
 
     private final RouteOptions routeOptions;
     private final RouteOptions.MethodRelayOptions relayOptions;

@@ -5,6 +5,7 @@ import io.github.sinri.keel.core.logger.KeelLogger;
 import io.github.sinri.keel.core.properties.KeelOptions;
 import io.github.sinri.passover.core.PassoverOptions;
 import io.github.sinri.passover.core.RouteOptions;
+import io.github.sinri.passover.router.PassoverRoute;
 import io.github.sinri.passover.server.PassoverServer;
 import io.vertx.core.VertxOptions;
 
@@ -21,7 +22,7 @@ public class Passover {
         // load passover config in yaml
         try {
             passoverOptions = KeelOptions.loadWithYamlFilePath("config.yml", PassoverOptions.class);
-            testConfigReading();
+            configPreview();
         } catch (IOException e) {
             e.printStackTrace();
             Keel.getVertx().close();
@@ -36,19 +37,25 @@ public class Passover {
         return passoverOptions;
     }
 
-    protected static void testConfigReading() {
+    protected static void configPreview() {
         KeelLogger logger = Keel.outputLogger("main");
-        logger.info("local listen port: " + passoverOptions.getLocalListenPort());
+        logger.info("Passover would listen to local port: " + passoverOptions.getLocalListenPort());
+
+        logger.info("Configured Routes, totally " + passoverOptions.getRoutes().size());
 
         List<RouteOptions> routeOptions = passoverOptions.getRoutes();
         for (var routeOption : routeOptions) {
-            logger.info("route - " + routeOption.getRouteName());
-            logger.info("\taccept: " + routeOption.getAcceptRequest().getHost() + " with " + routeOption.getAcceptRequest().getPath());
-            logger.info("\tmethod: " + routeOption.getMethod());
-            logger.info("\trelay: " + routeOption.getRelay().getHost() + ":" + routeOption.getRelay().getPort());
-            logger.info("\tfilters: " + routeOption.getRelay().getFilters().size());
-            for (var filter : routeOption.getRelay().getFilters()) {
-                logger.info("\t\tfilter " + filter.getFilterName() + " with " + filter.getFilterParams());
+            logger.info("Route [" + routeOption.getRouteName() + "]");
+            logger.info("\twould accept request from " + routeOption.getAcceptRequest().getHost() + ", with path regex: " + routeOption.getAcceptRequest().getPath());
+            logger.info("\thandle method: " + routeOption.getMethod());
+            if (routeOption.getMethod().equals(PassoverRoute.METHOD_RELAY)) {
+                logger.info("\tdestination: " + routeOption.getRelay().getHost() + ":" + routeOption.getRelay().getPort());
+                if (routeOption.getRelay().getFilters() != null) {
+                    logger.info("\tfilters totally " + routeOption.getRelay().getFilters().size());
+                    for (var filter : routeOption.getRelay().getFilters()) {
+                        logger.info("\t\tFilter [" + filter.getFilterName() + "] with params: " + filter.getFilterParams());
+                    }
+                }
             }
         }
     }
